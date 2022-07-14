@@ -1,0 +1,16 @@
+export const
+    red = "#d34836",
+    orange = "#e67e22",
+    yellow = "#e8a923",
+    green = "00ff00",
+    blue = "#1f80c3",
+    indigo = "#4b0082",
+    violet = "#ee82ee",
+    purple = "#800080",
+    royalpurple = "#7851a9",
+    royalblue = "#81a9e1",
+    discord = "#7289da",
+    moderator = "#4eb4cc",
+    ok = "#9d7afc",
+    milk = "#b6a2ff",
+    nitro = "#f47fff"
