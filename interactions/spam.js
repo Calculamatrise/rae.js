@@ -13,7 +13,6 @@ export default {
                     }).catch(function(error) {
                         resolve({
                             content: error.message,
-                            response: "followUp",
                             ephemeral: true
                         });
                     });
@@ -21,7 +20,6 @@ export default {
                     if (i >= 9) {
                         resolve({
                             content: `Successfully spammed **${user.tag}**!`,
-                            response: "followUp",
                             ephemeral: true
                         });
                     }

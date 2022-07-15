@@ -23,8 +23,7 @@ export default {
                         image
                     }
                 ],
-                ephemeral: true,
-                response: "editReply"
+                ephemeral: true
             }
         }).catch((error) => {
             return {

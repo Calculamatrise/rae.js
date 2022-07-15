@@ -45,15 +45,13 @@ export default {
                             }
                         ]
                     }
-                ],
-                response: "editReply"
+                ]
             }
         }).catch(function(error) {
             console.error(`PlayInteraction: ${error.message}`);
             return {
                 content: error.message,
-                ephemeral: true,
-                response: "editReply"
+                ephemeral: true
             }
         });
     },

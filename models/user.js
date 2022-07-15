@@ -11,6 +11,16 @@ const Schema = new mongoose.Schema({
             type: Boolean,
             default: false
         }
+    },
+    reminder: {
+        note: {
+            type: String,
+            default: null
+        },
+        time: {
+            type: String,
+            default: null
+        }
     }
 });
 

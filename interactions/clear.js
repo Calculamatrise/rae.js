@@ -16,15 +16,13 @@ export default {
                     await Promise.all(messages.map(message => message.delete().catch(reject)));
                     resolve({
                         content: "Successfully cleared " + messages.length + " messages.",
-                        ephemeral: true,
-                        response: "editReply"
+                        ephemeral: true
                     });
                 });
             }).catch(function(error) {
                 return {
                     content: error.message,
-                    ephemeral: true,
-                    response: "editReply"
+                    ephemeral: true
                 }
             });
         });

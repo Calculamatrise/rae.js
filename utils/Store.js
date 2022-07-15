@@ -1,3 +1,5 @@
+import RecursiveProxy from "./RecursiveProxy.js";
+
 export default class {
     constructor(model) {
         this.store = model;
@@ -5,13 +7,25 @@ export default class {
     store = null;
     async get(id) {
         if (id === void 0) return this.store.find({});
-        return await this.store.findOne({ id }) || null;
+        return this.store.findOne({ id }).then(item => {
+            if (item === null) return null;
+            return new RecursiveProxy(item, {
+                async set(target, property, value) {
+                    if (target[property] !== value) {
+                        target[property] = value;
+                        await item.save();
+                    }
+
+                    return true;
+                }
+            });
+        });
     }
 
     update = this.set;
-    async set(id, settings) {
+    async set(id, settings = {}) {
         let item = await this.get(id) ?? await this.store.create({ id });
-        await item.updateOne(merge(item, settings));
+        await item.updateOne(merge(JSON.parse(JSON.stringify(item)), settings));
         return item;
     }
 

@@ -1,6 +1,6 @@
 export default {
     execute(interaction) {
-        const queue = interaction.client.queues.cache.get(interaction.guildId);
+        let queue = interaction.client.queues.cache.get(interaction.guildId);
         if (!queue || queue.songs.length === 0) {
             return {
                 content: "No songs are playing.",
@@ -67,8 +67,8 @@ export default {
             ]
         }
     },
-    click(interaction, options, args) {
-        if (!interaction.member.voice.channel || interaction.member.voice.channelId != interaction.guild.me.voice.channelId) {
+    async click(interaction, options, args) {
+        if (interaction.member.voice.channelId != interaction.guild.me.voice.channelId) {
             return {
                 content: "You must be connected to my voice channel to execute this function.",
                 ephemeral: true
@@ -94,7 +94,7 @@ export default {
                         queue.page--;
                         break;
                 }
-    
+
                 let components = [];
                 if (queue.songs.length > 5) {
                     components.push({
@@ -117,7 +117,7 @@ export default {
                         ]
                     });
                 }
-                
+
                 if (queue.songs.length > 0) {
                     components.push({
                         type: "ACTION_ROW",
@@ -138,8 +138,8 @@ export default {
                         ]
                     });
                 }
-    
-                return {
+
+                await interaction.update({
                     components,
                     embeds: [
                         {
@@ -151,9 +151,8 @@ export default {
                             }).join("\n"),
                             color: "#2f3136"
                         }
-                    ],
-                    response: "update"
-                }
+                    ]
+                });
         }
     },
     async select(interaction, options, args) {
@@ -163,7 +162,7 @@ export default {
                 ephemeral: true
             }
         }
-    
+
         let queue = interaction.client.queues.cache.get(interaction.guildId);
         if (!queue) {
             return {
@@ -171,27 +170,27 @@ export default {
                 ephemeral: true
             }
         }
-        
+
         let song;
         switch(args[0].value.toLowerCase()) {
             case "splice":
                 song = queue.songs.splice(args[1].value, 1)[0];
                 break;
         }
-    
+
         if (queue.songs.length % 5 === 0 && queue.songs.length / 5 < queue.page) {
             queue.page--;
         }
-    
+
         if (queue.songs.length === 0) {
-            return {
+            interaction.update({
                 content: "All tracks have been removed from the queue.",
                 components: [],
-                embeds: [],
-                response: "update"
-            }
+                embeds: []
+            });
+            return;
         }
-    
+
         let components = [];
         if (queue.songs.length > 5) {
             components.push({
@@ -214,7 +213,7 @@ export default {
                 ]
             });
         }
-        
+
         if (queue.songs.length > 0) {
             components.push({
                 type: "ACTION_ROW",
@@ -235,7 +234,7 @@ export default {
                 ]
             });
         }
-    
+
         await interaction.update({
             components,
             embeds: [
@@ -250,10 +249,9 @@ export default {
                 }
             ]
         });
-    
-        return {
-            content: `Successfully removed **${song.name}** from the queue.`,
-            response: "followUp"
-        }
+
+        interaction.followUp({
+            content: `Successfully removed **${song.name}** from the queue.`
+        });
     }
 }

@@ -84,7 +84,7 @@ export default {
     data: {
         name: "role",
         description: "Create a single self-assignable role.",
-        default_member_permissions: 1 << 28,
+        // default_member_permissions: 1 << 28,
         dm_permission: false,
         options: [
             {

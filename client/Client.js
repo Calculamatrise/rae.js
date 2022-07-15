@@ -1,6 +1,5 @@
 import { readdir } from "fs";
 import { Client, Intents } from "discord.js";
-import mongoose from "mongoose";
 
 import DatabaseHandler from "../handlers/database.js";
 import InteractionHandler from "../handlers/interactions.js";
@@ -61,29 +60,39 @@ export default class extends Client {
             });
         });
 
-        mongoose.connect(process.env.DATABASE_KEY, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-            autoIndex: false,
-            connectTimeoutMS: 10000
-        }).then(() => {
+        this.database.connect(process.env.DATABASE_KEY);
+        this.database.createStore(Guild);
+        this.database.createStore(Member);
+        this.database.createStore(User);
+        this.database.on("connected", () => {
             this.database.users.get().then((users) => {
-                users.forEach(({ id, chatbridge }) => {
+                users.forEach(async ({ id, chatbridge, reminder }) => {
                     this.chatbridge.users.set(id, {
                         color: chatbridge.color,
                         messages: new Map()
                     });
+
+                    if (reminder.time !== null) {
+                        this.interactions.emit("setreminder", {
+                            client: this,
+                            user: this.users.cache.get(id) || await this.users.fetch(id)
+                        }, {
+                            getString(id) {
+                                return reminder[id];
+                            }
+                        });
+                    }
                 });
             });
-        }).catch(function(error) {
-            console.error(`mongoose: ${error.message}`);
         });
 
-        this.database.createStore(Guild);
-        this.database.createStore(Member);
-        this.database.createStore(User);
+        this.database.on("error", function(error) {
+            console.error("Database:", error.message);
+        });
 
-        mongoose.connection.on("disconnected", () => console.warn("I've lost connection to the database!"));
+        this.database.on("disconnected", () => {
+            console.warn("I've lost connection to the database!");
+        });
 	}
     chatbridge = ({
         messages: new Map(),
@@ -178,7 +187,7 @@ export default class extends Client {
                             await this.guilds.cache.get("433783980345655306").commands.create(metadata);
                         }
                     } else {
-                        if (data.name != "music") {
+                        if (data.name != "setreminder") {
                             continue;
                         }
 

@@ -18,14 +18,12 @@ export default {
                 ephemeral: true,
                 files: [
                     response.url
-                ],
-                response: "editReply"
+                ]
             }
         }).catch((error) => {
             return {
                 content: error.message,
-                ephemeral: true,
-                response: "editReply"
+                ephemeral: true
             }
         });
     },

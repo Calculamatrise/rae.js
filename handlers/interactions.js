@@ -4,30 +4,25 @@ export default class {
         return this.#events.size;
     }
 
-    on(event, func = function() {}) {
+    on(event, structure) {
         if (event === void 0 ||typeof event !== "string") {
             throw TypeError("INVALID_LISTENER");
         }
 
-        return this.#events.set(event, func);
+        return this.#events.set(event, structure);
     }
 
-    emit(event, interaction, ...args) {
-        if (!event || typeof event !== "string") {
+    emit(event, ...args) {
+        if (typeof event != "string") {
             throw new Error("INVALID_EVENT");
         }
 
-        event = this.get(event);
-        if (!event && typeof event !== "function") {
-            throw new Error("INVALID_FUNCTION");
-        }
-
-        let method = interaction.isButton() ? "click" : interaction.isSelectMenu() ? "select" : "execute";
-        if (typeof event[method] !== "function") {
+        let structure = this.get(event);
+        if (typeof structure.execute != "function") {
             return false;
         }
 
-        return event[method](interaction, ...args);
+        return structure.execute(...args);
     }
 
     each(callback = event => event) {
