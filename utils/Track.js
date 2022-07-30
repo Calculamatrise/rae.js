@@ -18,7 +18,6 @@ export default class {
     resource = null;
     looping = false;
     playing = false;
-    volume = 100;
     options = {
         seek: 0
     }
@@ -48,8 +47,6 @@ export default class {
             inputType: StreamType.Arbitrary,
             metadata: this
         });
-
-        this.resource.volume.setVolumeLogarithmic(this.volume / 100);
 
 		return this.resource;
 	}

@@ -30,8 +30,8 @@ export default {
                 ephemeral: true
             }
         }
-        clearTimeout(deafen.timeout);
 
+        clearTimeout(deafen.timeout);
         await member.voice.setDeaf(false).catch(function(error) {
             console.error(`undeafen.js: ${error.message}`);
         });
@@ -39,19 +39,15 @@ export default {
         interaction.client.deafs.delete(interaction.guildId, member.id);
         return {
             content: "**" + member.user.tag + "** was undeafened.",
-            components: [
-                {
-                    type: "ACTION_ROW",
-                    components: [
-                        {
-                            type: "BUTTON",
-                            label: "Deafen again",
-                            style: "PRIMARY",
-                            customId: `deafen-${member.id}-${deafen.time || 10000}`
-                        }
-                    ]
-                }
-            ]
+            components: [{
+                type: 1,
+                components: [{
+                    type: 2,
+                    label: "Deafen again",
+                    style: 1,
+                    customId: `deafen-${member.id}-${deafen.time || 10000}`
+                }]
+            }]
         }
     },
     async click(interaction, options) {
@@ -65,13 +61,11 @@ export default {
         description: "Undeafen a deafened user.",
         default_member_permissions: 1 << 23,
         dm_permission: false,
-        options: [
-            {
-                name: "user",
-                description: "User to be undeafened.",
-                type: 6,
-                required: true
-            }
-        ]
+        options: [{
+            name: "user",
+            description: "User to be undeafened.",
+            type: 6,
+            required: true
+        }]
     }
 }

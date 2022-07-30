@@ -23,29 +23,24 @@ export default {
                 description: options.getString("description") || ("Click on a button below to add or remove the " + role.name + " role!"),
                 color: role.color || null
             }],
-            components: [
-                {
-                    type: "ACTION_ROW",
-                    components: [
-                        {
-                            type: "BUTTON",
-                            label: "Add",
-                            style: "PRIMARY",
-                            customId:  "role-add-" + role.id,
-                            emoji: null,
-                            disabled: false
-                        },
-                        {
-                            type: "BUTTON",
-                            label: "Remove",
-                            style: "SECONDARY",
-                            customId: "role-remove-" + role.id,
-                            emoji: null,
-                            disabled: false
-                        }
-                    ]
-                }
-            ]
+            components: [{
+                type: 1,
+                components: [{
+                    type: 2,
+                    label: "Add",
+                    style: 1,
+                    customId:  "role-add-" + role.id,
+                    emoji: null,
+                    disabled: false
+                }, {
+                    type: 2,
+                    label: "Remove",
+                    style: 2,
+                    customId: "role-remove-" + role.id,
+                    emoji: null,
+                    disabled: false
+                }]
+            }]
         }
     },
     click(interaction, options, args) {
@@ -58,16 +53,16 @@ export default {
                 ephemeral: true
             }
         }
-    
-        await interaction.member.roles.add(args[1].value);
+
         if (interaction.guildId == "433783980345655306") {
-            const roles = ["842185148640395284", "833774597756289035", "833774455196483604"];
-            roles.filter(t => t != args[1].value).forEach(t => {
-                if (interaction.member.roles.cache.has(t)) {
-                    interaction.member.roles.remove(t);
+            for (const role of ["842185148640395284", "833774597756289035", "833774455196483604"]) {
+                if (interaction.member.roles.cache.has(role)) {
+                    await interaction.member.roles.remove(role);
                 }
-            });
+            }
         }
+
+        await interaction.member.roles.add(args[1].value);
     },
     remove(interaction, options, args) {
         if (interaction.member.roles.cache.has(args[1].value)) {

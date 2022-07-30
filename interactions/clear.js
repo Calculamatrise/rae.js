@@ -31,15 +31,14 @@ export default {
         name: "clear",
         description: "Purge command. Bulk delete messages.",
         default_member_permissions: 1 << 13,
-        options: [
-            {
-                name: "messages",
-                description: "Number of messages to be purged.",
-                min_value: 10,
-                max_value: 1e3,
-                type: 4,
-                required: true
-            }
-        ]
+        dm_permission: false,
+        options: [{
+            name: "messages",
+            description: "Number of messages to be purged.",
+            min_value: 10,
+            max_value: 1e3,
+            type: 4,
+            required: true
+        }]
     }
 }

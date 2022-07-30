@@ -1,5 +1,5 @@
 export default async function(message, edit) {
-    if (message.channel.type == "DM") {
+    if (message.channel.type == 1) {
         let author = this.chatbridge.users.get(message.author.id);
         if (author && this.chatbridge.messages.has(message.id)) {
             let data = this.chatbridge.messages.get(message.id);
@@ -20,5 +20,8 @@ export default async function(message, edit) {
         }
     }
 
-    this.snipes.set("edit", message.channel.id, message);
+    this.snipes.set("edit", message.channel.id, {
+        executor: message.author,
+        message
+    });
 }

@@ -1,11 +1,7 @@
 export default class {
     #events = new Map();
-    get length() {
-        return this.#events.size;
-    }
-
     on(event, structure) {
-        if (event === void 0 ||typeof event !== "string") {
+        if (event === void 0 || typeof event != "string") {
             throw TypeError("INVALID_LISTENER");
         }
 
@@ -14,19 +10,15 @@ export default class {
 
     emit(event, ...args) {
         if (typeof event != "string") {
-            throw new Error("INVALID_EVENT");
+            throw new TypeError("INVALID_EVENT");
         }
 
         let structure = this.get(event);
-        if (typeof structure.execute != "function") {
-            return false;
+        if (structure !== void 0 && typeof structure.execute == "function") {
+            return structure.execute(...args);
         }
 
-        return structure.execute(...args);
-    }
-
-    each(callback = event => event) {
-        this.#events.forEach(callback);
+        return false;
     }
 
     keys() {
@@ -39,20 +31,12 @@ export default class {
 
     get(event) {
         for (const item of this.values()) {
-            if (!item.data) {
-                continue;
-            }
-
-            if (item.data instanceof Array) {
-                for (const metadata of item.data) {
-                    if (metadata.name == event) {
+            if (item.menudata !== void 0) {
+                for (const menu in item.menudata) {
+                    if (item.menudata[menu].name == event) {
                         return item;
                     }
                 }
-            }
-
-            if (item.data.name == event) {
-                return item;
             }
         }
 
@@ -62,9 +46,9 @@ export default class {
     has(event, meta = false) {
         if (meta) {
             for (const item of this.values()) {
-                if (item.data instanceof Array) {
-                    for (const metadata of item.data) {
-                        if (metadata.name == event) {
+                if (item.menudata !== void 0) {
+                    for (const menu in item.menudata) {
+                        if (item.menudata[menu].name == event) {
                             return true;
                         }
                     }

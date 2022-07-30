@@ -1,6 +1,6 @@
 export default async function(message) {
     if (message.author.bot) return;
-    if (message.channel.type == "DM" && this.chatbridge.users.has(message.author.id)) {
+    if (message.channel.type == 1 && this.chatbridge.users.has(message.author.id)) {
         let author = this.chatbridge.users.get(message.author.id);
         let referenceMessage = message.reference && (message.channel.messages.cache.get(message.reference.messageId) || await message.channel.messages.fetch(message.reference.messageId).catch(function(error) {
             console.error("ChatBridge", error.message);
@@ -29,7 +29,7 @@ export default async function(message) {
                     image: {
                         url: message.attachments.first()?.proxyURL || null
                     },
-                    timestamp: Date.now()
+                    timestamp: new Date(Date.now()).toISOString()
                 }]
             }).then((last) => {
                 let data = this.chatbridge.messages.get(message.id) || {
@@ -42,7 +42,7 @@ export default async function(message) {
                 console.error("ChatBridge:", error.message);
             });
         });
-    } else if (message.channel.type != "DM" && message.channel.name.match(/^temp-(chat|no-mic|muted)$/gi)) {
+    } else if (message.channel.type != 1 && message.channel.name.match(/^temp-(chat|no-mic|muted)$/gi)) {
         setTimeout(() => {
             message.delete().catch(function(error) {
                 console.error(`TempChannel: ${error.message}`);

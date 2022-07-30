@@ -1,37 +1,37 @@
 export default {
     execute(interaction) {
-        if (interaction.member.voice.channelId != interaction.guild.me.voice.channelId) {
+        if (interaction.member.voice.channelId != interaction.guild.members.me.voice.channelId) {
             return {
                 content: "You must be in my voice channel to resume the music!",
                 ephemeral: true
             }
         }
 
-        let queue = interaction.client.queues.cache.get(interaction.guildId);
+        let queue = interaction.client.queues.get(interaction.guildId);
         if (queue && queue.stopped) {
             let song = queue.resume();
             let content = {
                 content: `**Now playing**\n[${song.name}](<${song.url}>)`,
                 components: [
                     {
-                        type: "ACTION_ROW",
+                        type: 1,
                         components: [
                             {
-                                type: "BUTTON",
+                                type: 2,
                                 label: "Back",
-                                style: "PRIMARY",
+                                style: 1,
                                 customId: "musicBack"
                             },
                             {
-                                type: "BUTTON",
+                                type: 2,
                                 label: "Pause",
-                                style: "PRIMARY",
+                                style: 1,
                                 customId: "musicPause"
                             },
                             {
-                                type: "BUTTON",
+                                type: 2,
                                 label: "Skip",
-                                style: "PRIMARY",
+                                style: 1,
                                 customId: "musicSkip"
                             }
                         ]

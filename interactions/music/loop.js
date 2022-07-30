@@ -1,13 +1,13 @@
 export default {
     execute(interaction, options) {
-        if (interaction.member.voice.channelId != interaction.guild.me.voice.channelId) {
+        if (interaction.member.voice.channelId != interaction.guild.members.me.voice.channelId) {
             return {
                 content: "You must be in my voice channel to resume the music!",
                 ephemeral: true
             }
         }
 
-        let queue = interaction.client.queues.cache.get(interaction.guildId);
+        let queue = interaction.client.queues.get(interaction.guildId);
         if (queue && !queue.stopped) {
             let range = options.getString("range");
             queue.setLoop(range == "track");
@@ -15,25 +15,20 @@ export default {
             let song = queue.songs[0];
             let content = {
                 content: `**Now looping**\n[${song.name}](<${song.url}>)`,
-                components: [
-                    {
-                        type: "ACTION_ROW",
-                        components: [
-                            {
-                                type: "BUTTON",
-                                label: queue.repeatOne ? "Stop Looping" : "Loop Track",
-                                style: queue.repeatOne ? "SECONDARY" : "PRIMARY",
-                                customId: queue.repeatOne ? "musicUnloop" : "musicLoop-track"
-                            },
-                            {
-                                type: "BUTTON",
-                                label: queue.repeatQueue ? "Stop Looping Queue" : "Loop Queue",
-                                style: queue.repeatQueue ? "SECONDARY" : "PRIMARY",
-                                customId: queue.repeatQueue ? "musicUnloop" : "musicLoop-queue"
-                            }
-                        ]
-                    }
-                ]
+                components: [{
+                    type: 1,
+                    components: [{
+                        type: 2,
+                        label: queue.currentTrack?.looping ? "Stop Looping" : "Loop Track",
+                        style: 1 + queue.currentTrack?.looping,
+                        customId: queue.currentTrack?.looping ? "musicUnloop" : "musicLoop-track"
+                    }, {
+                        type: 2,
+                        label: queue.repeatQueue ? "Stop Looping Queue" : "Loop Queue",
+                        style: 1 + queue.repeatQueue,
+                        customId: queue.repeatQueue ? "musicUnloop" : "musicLoop-queue"
+                    }]
+                }]
             }
 
             return queue.interaction.editReply(content).then(function() {
@@ -51,8 +46,7 @@ export default {
             ephemeral: true
         }
     },
-    click(interaction, options) {
-        options.get("range").type = "STRING";
+    click() {
         this.execute(...arguments);
     }
 }

@@ -10,42 +10,46 @@ export default {
         }
 
         await interaction.deferReply();
+        if (!interaction.client.queues.has(interaction.guildId)) {
+            interaction.client.queues.set(interaction.guildId, new Queue());
+        }
 
-        let queue = interaction.client.queues.create(interaction);
+        let queue = interaction.client.queues.get(interaction.guildId);
+        if (queue.interaction !== null && queue.interaction.replied) {
+            queue.interaction.editReply({ components: [] }).catch(function(error) {
+                console.error(`QueueManager: ${error.message}`);
+            });
+        }
+
+        queue.init(interaction);
         return queue.play(options.getString("song")).then(function(song) {
             return {
                 content: `**${song.playing ? "Now playing" : "Track Queued - Position " + queue.songs.length}**\n[${song.name}](<${song.url}>)`,
-                components: [
-                    {
-                        type: "ACTION_ROW",
-                        components: [
-                            {
-                                type: "BUTTON",
-                                label: queue.repeatOne ? "Stop Looping" : "Loop Track",
-                                style: queue.repeatOne ? "SECONDARY" : "PRIMARY",
-                                customId: queue.repeatOne ? "musicUnloop" : "musicLoop-track",
-                                emoji: null, // "🔂",
-                                disabled: false
-                            },
-                            {
-                                type: "BUTTON",
-                                label: queue.repeatQueue ? "Stop Looping Queue" : "Loop Queue",
-                                style: queue.repeatQueue ? "SECONDARY" : "PRIMARY",
-                                customId: queue.repeatQueue ? "musicUnloop" : "musicLoop-queue",
-                                emoji: null, // "🔁",
-                                disabled: false
-                            },
-                            {
-                                type: "BUTTON",
-                                label: "End Session",
-                                style: "DANGER",
-                                customId: "musicStop",
-                                emoji: null, // "🔂",
-                                disabled: false
-                            }
-                        ]
-                    }
-                ]
+                components: [{
+                    type: 1,
+                    components: [{
+                        type: 2,
+                        label: queue.currentTrack?.looping ? "Stop Looping" : "Loop Track",
+                        style: 1 + queue.currentTrack?.looping,
+                        customId: queue.currentTrack?.looping ? "musicUnloop" : "musicLoop-track",
+                        emoji: null, // "🔂",
+                        disabled: false
+                    }, {
+                        type: 2,
+                        label: queue.repeatQueue ? "Stop Looping Queue" : "Loop Queue",
+                        style: 1 + queue.repeatQueue,
+                        customId: queue.repeatQueue ? "musicUnloop" : "musicLoop-queue",
+                        emoji: null, // "🔁",
+                        disabled: false
+                    }, {
+                        type: 2,
+                        label: "End Session",
+                        style: 4,
+                        customId: "musicStop",
+                        emoji: null, // "🔂",
+                        disabled: false
+                    }]
+                }]
             }
         }).catch(function(error) {
             console.error(`PlayInteraction: ${error.message}`);
@@ -56,7 +60,7 @@ export default {
         });
     },
     focus(interaction, option) {
-        let queue = interaction.client.queues.cache.get(interaction.guildId);
+        let queue = interaction.client.queues.get(interaction.guildId);
         if (queue && queue.recentlyPlayed.length > 0) {
             return queue.recentlyPlayed.map(({ name, url }) => ({ name, value: url }));
         }

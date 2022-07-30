@@ -85,13 +85,11 @@ export default {
     data: {
         name: "math",
         description: "Because you love math so much-",
-        options: [
-            {
-                name: "input",
-                description: "Enter your formula followed by n to execute the formula.",
-                required: true,
-                type: 3
-            }
-        ]
+        options: [{
+            name: "input",
+            description: "Enter your formula followed by n to execute the formula.",
+            required: true,
+            type: 3
+        }]
     }
 }

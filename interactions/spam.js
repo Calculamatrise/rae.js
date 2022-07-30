@@ -27,31 +27,29 @@ export default {
             }
         });
     },
-    data: [
-        {
+    data: {
+        name: "spam",
+        description: "Spam another member.",
+        default_member_permissions: 0,
+        options: [{
+            name: "user",
+            description: "Pick a member to spam.",
+            type: 6,
+            required: true
+        },{
+            name: "message",
+            description: "Write a friendly note for the user you're about to spam.",
+            type: 3,
+            required: false
+        }]
+    },
+    menudata: {
+        user: {
             name: "spam",
-            description: "Spam another member.",
-            default_permission: false,
-            options: [
-                {
-                    name: "user",
-                    description: "Pick a member to spam.",
-                    type: 6,
-                    required: true
-                },
-                {
-                    name: "message",
-                    description: "Write a friendly note for the user you're about to spam.",
-                    type: 3,
-                    required: false
-                }
-            ]
-        },
-        {
-            name: "spam",
+            default_member_permissions: 0,
             type: 2
         }
-    ],
+    },
     whitelist: new Set([
         "704794598303858728",
         "804019041131167745"

@@ -10,28 +10,10 @@ const { getData } = spoof(fetch);
 import Track from "./Track.js";
 
 export default class {
-    constructor(interaction) {
-        this.interaction = interaction;
-        this.connection = interaction.member.voice.channel.join();
-
-        this.player = createAudioPlayer();
+    constructor() {
         this.player.on(AudioPlayerStatus.Idle, async () => {
-            let first = this.songs[0];
-            if (first) {
-                if (first.options.exit) {
-                    first.options.exit = false;
-                } else {
-                    first.options = {
-                        seek: 0
-                    }
-                }
-            }
-
-            let song = this.stopped ? first : this.shift();
-            if (song == void 0) {
-                this.stopped = true;
-                return;
-            }
+            let song = this.shift();
+            if (song == void 0) return;
 
             await this.play(song);
             this.interaction.editReply({
@@ -42,43 +24,42 @@ export default class {
         });
 
 		this.player.on("error", (error) => {
-            if (error.resource && error.resource.metadata && error.resource.playbackDuration) {
-                error.resource.metadata.options.seek += error.resource.playbackDuration;
-                error.resource.metadata.options.exit = true;
-            }
-
-            console.error("Player: " + error.message);
+            console.error("Player:", error.message);
 		});
-
-        this.songs = [];
-        this.volume = 100;
-        this.stopped = true;
-        this.repeatQueue = false;
-        this.page = 1;
-
-        this.recentlyPlayed = [];
-        this.recentlyPlayed.push = function() {
-            if (this.length > 5) {
-                this.shift();
-            }
-
-            return Array.prototype.push.apply(this, arguments);
+    }
+    connection = null;
+    interaction = null;
+    page = 1;
+    player = createAudioPlayer();
+    repeatQueue = false;
+    recentlyPlayed = new (class extends Array {
+        unshift() {
+            this.length > 5 && this.pop();
+            return super.unshift.apply(this, arguments);
         }
+    })();
+    songs = [];
+    volume = 100;
+    get currentTrack() {
+        return this.songs[0] || null;
     }
 
-    get repeatOne() {
-        return this.songs.length > 0 && this.songs[0].looping;
+    get stopped() {
+        return this.player.state.status != "playing";
+    }
+
+    init(interaction) {
+        this.interaction = interaction;
+        this.connection = interaction.member.voice.channel.join();
     }
 
     back() {
-        let currentSong = this.songs[0];
-        if (this.recentlyPlayed.length > 0)
-            this.songs.unshift(this.recentlyPlayed.pop());
+        let currentSong = this.currentTrack;
+        if (this.recentlyPlayed.length > 1) {
+            this.songs.splice(1, 0, this.recentlyPlayed.shift());
+        }
 
-        this.stopped = true;
-        this.play(this.songs[0]);
-
-        return currentSong;
+        return this.player.stop(), currentSong;
     }
 
     clear() {
@@ -93,7 +74,7 @@ export default class {
             return;
         }
 
-        if (this.songs.length > 0 && this.songs[0].looping) {
+        if (this.currentTrack?.looping) {
             this.setQueueLoop(true);
             return;
         }
@@ -103,23 +84,21 @@ export default class {
 
     pause() {
         this.player.pause();
-        this.stopped = true;
-        return this.songs[0];
+        return this.currentTrack;
     }
 
     resume() {
         this.player.unpause();
-        this.stopped = false;
-        return this.songs[0];
+        return this.currentTrack;
     }
 
     setLoop(enabled) {
         if (this.songs.length > 0) {
-            this.songs[0].looping = enabled;
-            if (this.songs[0].looping)
+            this.currentTrack.looping = enabled;
+            if (this.currentTrack.looping)
                 this.repeatQueue = false;
 
-            return this.songs[0].looping;
+            return this.currentTrack.looping;
         }
 
         return false;
@@ -128,24 +107,18 @@ export default class {
     setQueueLoop(enabled) {
         this.repeatQueue = enabled;
         if (this.repeatQueue && this.songs.length > 0)
-            this.songs[0].looping = false;
+            this.currentTrack.looping = false;
 
         return this.repeatQueue;
     }
 
     shift() {
-        if (this.songs.length > 0 && this.songs[0].looping)
-            return this.songs[0];
-
-        if (this.repeatQueue)
-            this.songs.push(this.songs[0]);
-
-        this.recentlyPlayed.push(this.songs.shift());
-        if (this.songs.length < 1) {
-            return null;
+        if (this.currentTrack?.looping) {
+            return this.currentTrack;
         }
 
-        return this.songs[0];
+        this.repeatQueue && this.songs.push(this.currentTrack);
+        return this.recentlyPlayed.unshift(this.songs.shift()), this.currentTrack || null;
     }
 
     shuffle() {
@@ -166,24 +139,30 @@ export default class {
     }
 
     skip() {
-        let currentSong = this.songs[0];
+        let currentSong = this.currentTrack;
         return this.player.stop(), currentSong;
     }
 
     stop() {
-        this.connection.destroy();
-        if (this.interaction.replied) {
+        if (this.connection !== null) {
+            this.connection.destroy();
+            this.connection = null;
+        }
+
+        if (this.interaction !== null && this.interaction.replied) {
             this.interaction.editReply({
                 components: []
             }).catch(() => {});
+            this.interaction = null;
         }
 
-        return this.interaction.client.queues.cache.delete(this.interaction.guildId);
+        this.clear();
+        this.setLoop(false);
     }
 
 
     toggleLoop() {
-        return this.setLoop(this.songs.length > 0 && !this.songs[0].looping);
+        return this.setLoop(!this.currentTrack?.looping);
     }
 
     toggleQueueLoop() {
@@ -247,19 +226,19 @@ export default class {
             song = this.songs.at(-1);
         }
 
-        if (!this.stopped && (this.songs[0].playing && !song.playing)) {
+        if (!this.stopped && (this.currentTrack.playing && !song.playing)) {
             return song;
         }
 
-        song = this.songs[0];
+        song = this.currentTrack;
         if (this.connection.subscription) {
             this.connection.subscription.unsubscribe();
         }
 
-        this.player.play(await song.createAudioResource());
+        let resource = await song.createAudioResource();
+        resource.volume.setVolumeLogarithmic(this.volume / 100);
+        this.player.play(resource);
         this.connection.subscription = this.connection.subscribe(this.player);
-
-        this.stopped = false;
 
         return song;
     }

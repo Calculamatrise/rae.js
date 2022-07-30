@@ -7,18 +7,7 @@ export default class {
     types = ["message", "edit", "reaction"];
     get(type, id, user) {
         if (!this.types.includes(type)) {
-            throw new Error(type + " is not a type.");
-        }
-
-        if (user != void 0) {
-            const channel = this[type].get(id);
-            if (!channel) {
-                return null;
-            }
-
-            return channel.filter(function(snipe) {
-                return snipe.author.id == user;
-            })[0];
+            throw new TypeError(type + " is not a type.");
         }
 
         const channel = this[type].get(id);
@@ -26,12 +15,18 @@ export default class {
             return null;
         }
 
+        if (user != void 0) {
+            return channel.filter(function(snipe) {
+                return snipe.message.author.id == user;
+            })[0];
+        }
+
         return channel.slice(-1)[0];
     }
 
     set(type, id, data) {
         if (!this.types.includes(type)) {
-            throw new Error(type + " is not a type.");
+            throw new TypeError(type + " is not a type.");
         }
 
         if (!this[type].has(id)) {

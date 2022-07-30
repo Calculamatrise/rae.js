@@ -20,9 +20,10 @@ export default async function(interaction) {
         }
     }
 
-    if (this.interactions.has(command, interaction.isContextMenu())) {
+    interaction.commandType = interaction.commandType || 1;
+    if (this.interactions.has(command, interaction.commandType != 1)) {
         const event = this.interactions.get(command);
-        if (interaction.isAutocomplete()) {
+        if (!interaction.isRepliable()) {
             !interaction.responded && interaction.respond(await event.focus(interaction, interaction.options.getFocused(true))).catch(function(error) {
                 console.error("FocusedInteraction:", error.message);
             });
@@ -30,7 +31,7 @@ export default async function(interaction) {
         }
 
         if (typeof event.data == "object") {
-            if (event.data.dm_permission === false && interaction.channel.type == "DM") {
+            if (event.data.dm_permission === false && interaction.channel.type == 1) {
                 interaction.reply({
                     content: "You may not use this command in direct messages.",
                     ephemeral: true
@@ -49,13 +50,14 @@ export default async function(interaction) {
             }
         }
 
-        if ((event.blacklist instanceof Set && event.blacklist.has(interaction.user.id)) || (event.whitelist instanceof Set && !event.whitelist.has(interaction.user.id))) {
+        if ((event.blacklist !== void 0 && event.blacklist.has(interaction.user.id)) || (event.whitelist !== void 0 && !event.whitelist.has(interaction.user.id))) {
             interaction.reply({
                 content: event.response || "Insufficient privledges.",
                 ephemeral: true
             });
             return;
         }
+
 
         if (interaction.isButton() || interaction.isSelectMenu()) {
             let parent = this.interactions.get(command.replace(/[A-Z].*/g, ""));

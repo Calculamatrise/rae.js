@@ -24,26 +24,23 @@ export default {
                 return {
                     embeds: [{
                         color: interaction.member?.roles.cache.first()?.color || null,
-                        fields: [
-                            {
-                                name: "Result",
-                                value: `\`\`\`js\n${result.toString()}\`\`\``,
-                                inline: false
-                            },
-                            {
-                                name: "Type",
-                                value: `\`\`\`js\n${typeof result}\`\`\``,
-                                inline: false
-                            }
-                        ]
+                        fields: [{
+                            name: "Result",
+                            value: `\`\`\`js\n${result.toString()}\`\`\``,
+                            inline: false
+                        }, {
+                            name: "Type",
+                            value: `\`\`\`js\n${typeof result}\`\`\``,
+                            inline: false
+                        }]
                     }],
                     ephemeral: true
                 }
             }
 
             let _inspect = flags.has("noins") ? (x => x) : inspect;
-            console.out = function() {
-                return stdout.push(arguments.map(x => _inspect(x)).join(" ")) && undefined;
+            console.out = function(...args) {
+                return stdout.push(args.map(x => _inspect(x)).join(" ")) && undefined;
             }
 
             let evaled = await eval(`(async () => ${str})()`);
@@ -64,18 +61,15 @@ export default {
                 return {
                     embeds: [{
                         color: interaction.member?.roles.cache.first()?.color || null,
-                        fields: [
-                            {
-                                name: "Result",
-                                value: `\`\`\`js\n${stdout.join("\n")}\`\`\``,
-                                inline: false
-                            },
-                            {
-                                name: "Type",
-                                value: `\`\`\`js\n${typeof evaled}\`\`\``,
-                                inline: false
-                            }
-                        ]
+                        fields: [{
+                            name: "Result",
+                            value: `\`\`\`js\n${stdout.join("\n")}\`\`\``,
+                            inline: false
+                        }, {
+                            name: "Type",
+                            value: `\`\`\`js\n${typeof evaled}\`\`\``,
+                            inline: false
+                        }]
                     }],
                     ephemeral: true
                 }
@@ -99,16 +93,20 @@ export default {
     data: {
         name: "eval",
         description: "Execute code on discord.",
-        default_permission: false,
         default_member_permissions: 0,
-        options: [
-            {
-                name: "input",
-                description: "Code you wish to execute",
-                type: 3,
-                required: true
-            }
-        ],
+        options: [{
+            name: "input",
+            description: "Code you wish to execute",
+            type: 3,
+            required: true
+        }],
+    },
+    menudata: {
+        message: {
+            name: "eval",
+            default_member_permissions: 0,
+            type: 3
+        }
     },
     whitelist: new Set([
         "307360544468238336",

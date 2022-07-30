@@ -8,22 +8,20 @@ export default {
             ]
         }
     },
-    data: [
-        {
-            name: "avatar",
-            description: "Get someone's avatar.. I guess",
-            options: [
-                {
-                    name: "user",
-                    description: "User who's avatar you wish to see",
-                    type: 6,
-                    required: true
-                }
-            ]
-        },
-        {
+    data: {
+        name: "avatar",
+        description: "Get someone's avatar.. I guess",
+        options: [{
+            name: "user",
+            description: "User who's avatar you wish to see",
+            type: 6,
+            required: true
+        }]
+    },
+    menudata: {
+        user: {
             name: "avatar",
             type: 2
         }
-    ]
+    }
 }
