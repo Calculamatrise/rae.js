@@ -3,7 +3,7 @@ import { Client } from "discord.js";
 
 import DatabaseHandler from "../handlers/database.js";
 import InteractionHandler from "../handlers/interactions.js";
-import Snipes from "../utils/Snipes.js";
+import SnipeHandler from "../handlers/snipes.js";
 import Guild from "../models/guild.js";
 import Member from "../models/member.js";
 import User from "../models/user.js";
@@ -15,9 +15,9 @@ export default class extends Client {
 
         this.database = new DatabaseHandler();
         this.interactions = new InteractionHandler();
+        this.snipes = new SnipeHandler();
         
         this.deafs = new Temp();
-		this.snipes = new Snipes();
         this.queues = new Map();
 
         this.#import("./events", events => {
@@ -37,33 +37,22 @@ export default class extends Client {
             });
         });
 
-        this.database.connect(process.env.DATABASE_KEY);
         this.database.createStore(Guild);
         this.database.createStore(Member);
         this.database.createStore(User);
         this.database.on("connected", () => {
             this.database.users.get().then((users) => {
-                users.forEach(async ({ id, chatbridge, reminder }) => {
+                users.forEach(async ({ id, chatbridge }) => {
                     this.chatbridge.users.set(id, {
                         color: chatbridge.color,
                         messages: new Map()
                     });
-
-                    if (reminder.time !== null) {
-                        this.interactions.emit("setreminder", {
-                            client: this,
-                            user: this.users.cache.get(id) || await this.users.fetch(id)
-                        }, {
-                            getString(id) {
-                                return reminder[id];
-                            }
-                        });
-                    }
                 });
             });
         });
 
         this.database.on("error", function(error) {
+            console.error(error)
             console.error("Database:", error.message);
         });
 
@@ -71,10 +60,10 @@ export default class extends Client {
             console.warn("I've lost connection to the database!");
         });
 	}
-    chatbridge = ({
+    chatbridge = {
         messages: new Map(),
         users: new Map()
-    });
+    }
     developerMode = false;
     #import(directory, callback = (response) => response) {
         return new Promise((resolve, reject) => {
