@@ -43,7 +43,7 @@ export default {
                 return stdout.push(args.map(x => _inspect(x)).join(" ")) && undefined;
             }
 
-            let evaled = await eval(`(async () => ${str})()`);
+            let evaled = await eval(`(async () => {${str}})()`);
             stdout.push(_inspect(evaled, {
                 depth: 0
             }));
