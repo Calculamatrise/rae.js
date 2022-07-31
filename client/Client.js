@@ -125,7 +125,7 @@ export default class extends Client {
             });
 
             for (const { data, menudata: { message, user } = {}} of this.interactions.values()) {
-                if (this.developerMode && data && data.name != "overview") continue;
+                if (this.developerMode && data && data.name != "music") continue;
                 data && await commands.create(data);
                 message && await commands.create(message);
                 user && await commands.create(user);

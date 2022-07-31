@@ -9,9 +9,9 @@ export default {
 
         let queue = interaction.client.queues.get(interaction.guildId);
         if (queue && !queue.stopped) {
-            let song = queue.pause();
+            queue.player.pause();
             let content = {
-                content: `**Paused**\n[${song.name}](<${song.url}>)`,
+                content: `**Paused**\n[${queue.currentTrack.name}](<${queue.currentTrack.url}>)`,
                 components: [{
                     type: 1,
                     components: [{

@@ -41,9 +41,16 @@ export default {
             description: "Pause the music.",
             type: 1
         }, {
-            name: "queue",
-            description: "Display the current queue.",
-            type: 1
+            name: "remove",
+            description: "Destroy the queue.",
+            type: 1,
+            options: [{
+                name: "track",
+                description: "Remove a track from the queue.",
+                type: 4,
+                required: true,
+                autocomplete: true
+            }]
         }, {
             name: "resume",
             description: "Resume the music.",

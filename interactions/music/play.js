@@ -24,7 +24,7 @@ export default {
         queue.init(interaction);
         return queue.play(options.getString("song")).then(function(song) {
             return {
-                content: `**${song.playing ? "Now playing" : "Track Queued - Position " + queue.songs.length}**\n[${song.name}](<${song.url}>)`,
+                content: `**${song.playing ? "Now playing" : "Track Queued - Position " + queue.songs.size}**\n[${song.name}](<${song.url}>)`,
                 components: [{
                     type: 1,
                     components: [{
@@ -52,7 +52,7 @@ export default {
                 }]
             }
         }).catch(function(error) {
-            console.error(`PlayInteraction: ${error.message}`);
+            console.error("PlayInteraction:", error.message);
             return {
                 content: error.message,
                 ephemeral: true
@@ -60,9 +60,24 @@ export default {
         });
     },
     focus(interaction, option) {
-        let queue = interaction.client.queues.get(interaction.guildId);
-        if (queue && queue.recentlyPlayed.length > 0) {
-            return queue.recentlyPlayed.map(({ name, url }) => ({ name, value: url }));
+        if (interaction.client.queues.has(interaction.guildId)) {
+            let queue = interaction.client.queues.get(interaction.guildId);
+            if (queue.songs.recentlyPlayed.size > 0) {
+                return Array.from(queue.songs.recentlyPlayed.values())
+                .slice(0, 25)
+                .reverse()
+                .map(({ name, url }) => ({ name, value: url }))
+                .filter(prof =>  prof.name.toLowerCase().includes(option.value.toLowerCase()))
+                .sort((a, b) => {
+                    if (a.name.toLowerCase().indexOf(option.value.toLowerCase()) > b.name.toLowerCase().indexOf(option.value.toLowerCase())) {
+                        return 1;
+                    } else if (a.name.toLowerCase().indexOf(option.value.toLowerCase()) < b.name.toLowerCase().indexOf(option.value.toLowerCase())) {
+                        return -1;
+                    }
+
+                    return a.name > b.name ? 1 : -1;
+                });
+            }
         }
 
         if (option.value.length < 1) return [];

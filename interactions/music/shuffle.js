@@ -9,7 +9,7 @@ export default {
         
         let queue = interaction.client.queues.get(interaction.guildId);
         if (queue && !queue.stopped) {
-            queue.shuffle();
+            queue.songs.shuffle();
             return {
                 content: "I've shuffled the queue!"
             }

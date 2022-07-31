@@ -7,6 +7,7 @@ import spoof from "spotify-url-info";
 
 const { getData } = spoof(fetch);
 
+import SongHandler from "../handlers/songs.js";
 import Track from "./Track.js";
 
 export default class {
@@ -29,19 +30,12 @@ export default class {
     }
     connection = null;
     interaction = null;
-    page = 1;
     player = createAudioPlayer();
     repeatQueue = false;
-    recentlyPlayed = new (class extends Array {
-        unshift() {
-            this.length > 5 && this.pop();
-            return super.unshift.apply(this, arguments);
-        }
-    })();
-    songs = [];
+    songs = new SongHandler();
     volume = 100;
     get currentTrack() {
-        return this.songs[0] || null;
+        return Array.from(this.songs.values())[0] || null;
     }
 
     get stopped() {
@@ -62,11 +56,6 @@ export default class {
         return this.player.stop(), currentSong;
     }
 
-    clear() {
-        this.songs = [];
-        return this.songs;
-    }
-
     loop(state = true) {
         if (state == false || this.repeatQueue) {
             this.setQueueLoop(false);
@@ -82,18 +71,8 @@ export default class {
         this.setLoop(true);
     }
 
-    pause() {
-        this.player.pause();
-        return this.currentTrack;
-    }
-
-    resume() {
-        this.player.unpause();
-        return this.currentTrack;
-    }
-
     setLoop(enabled) {
-        if (this.songs.length > 0) {
+        if (this.songs.size > 0) {
             this.currentTrack.looping = enabled;
             if (this.currentTrack.looping)
                 this.repeatQueue = false;
@@ -106,7 +85,7 @@ export default class {
 
     setQueueLoop(enabled) {
         this.repeatQueue = enabled;
-        if (this.repeatQueue && this.songs.length > 0)
+        if (this.repeatQueue && this.songs.size > 0)
             this.currentTrack.looping = false;
 
         return this.repeatQueue;
@@ -117,25 +96,12 @@ export default class {
             return this.currentTrack;
         }
 
-        this.repeatQueue && this.songs.push(this.currentTrack);
-        return this.recentlyPlayed.unshift(this.songs.shift()), this.currentTrack || null;
-    }
-
-    shuffle() {
-        for (const track in this.songs) {
-            if (this.songs.hasOwnProperty(track)) {
-                let index = Math.floor(Math.random() * track);
-                [
-                    this.songs[track],
-                    this.songs[index]
-                ] = [
-                    this.songs[index],
-                    this.songs[track]
-                ];
-            }
+        if (this.songs.recentlyPlayed.size > 5) {
+            this.songs.recentlyPlayed.delete(this.songs.recentlyPlayed.values().next().value);
         }
 
-        return this.songs;
+        this.repeatQueue && this.songs.add(this.currentTrack);
+        return this.songs.recentlyPlayed.add(this.songs.shift()), this.currentTrack || null;
     }
 
     skip() {
@@ -150,9 +116,7 @@ export default class {
         }
 
         if (this.interaction !== null && this.interaction.replied) {
-            this.interaction.editReply({
-                components: []
-            }).catch(() => {});
+            this.interaction.editReply({ components: [] }).catch(console.error);
             this.interaction = null;
         }
 
@@ -193,7 +157,7 @@ export default class {
                 switch(data.type) {
                     case "video":
                         if (data.isLive || data.badges?.includes("LIVE")) {
-                            return new Error("Live videos aren't supported!");
+                            throw new Error("Live videos aren't supported!");
                         }
         
                         return new Track({
@@ -218,12 +182,8 @@ export default class {
     async play(song) {
         if (!(song instanceof Track)) {
             let search = await this.search(song);
-            if (search instanceof Error) {
-                throw search;
-            }
-
-            search instanceof Array ? this.songs.push(...search) : this.songs.push(search);
-            song = this.songs.at(-1);
+            search instanceof Array ? this.songs.add(...search) : this.songs.add(search);
+            song = Array.from(this.songs.values()).at(-1);
         }
 
         if (!this.stopped && (this.currentTrack.playing && !song.playing)) {
@@ -245,10 +205,7 @@ export default class {
 
     static getVideo(video, { limit = 1 } = {}) {
         return ytsr(video.replace(/.*(?<=v=)|(?=&).*/g, ""), { limit }).then(function({ items }) {
-            if (limit == 1) {
-                return items[0];
-            }
-
+            if (limit == 1) return items[0];
             return items;
         });
     }
