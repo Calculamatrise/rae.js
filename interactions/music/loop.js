@@ -12,7 +12,7 @@ export default {
             let range = options.getString("range");
             queue.setLoop(range == "track");
             queue.setQueueLoop(range == "queue");
-            let song = queue.songs[0];
+            let song = queue.currentTrack;
             let content = {
                 content: `**Now looping**\n[${song.name}](<${song.url}>)`,
                 components: [{

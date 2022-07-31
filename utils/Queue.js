@@ -120,7 +120,7 @@ export default class {
             this.interaction = null;
         }
 
-        this.clear();
+        this.songs.clear();
         this.setLoop(false);
     }
 

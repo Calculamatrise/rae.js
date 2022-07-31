@@ -11,7 +11,7 @@ export default {
         if (queue && !queue.stopped) {
             queue.setLoop(false);
             queue.setQueueLoop(false);
-            let song = queue.songs[0];
+            let song = queue.currentTrack;
             let content = {
                 content: `**Now playing**\n[${song.name}](<${song.url}>)`,
                 components: [{
