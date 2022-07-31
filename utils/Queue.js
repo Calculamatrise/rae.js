@@ -1,4 +1,4 @@
-import { AudioPlayerStatus, createAudioPlayer, joinVoiceChannel } from "@discordjs/voice";
+import { createAudioPlayer, joinVoiceChannel } from "@discordjs/voice";
 import { BaseGuildVoiceChannel } from "discord.js";
 import ytsr from "ytsr";
 import ytpl from "ytpl";
@@ -12,16 +12,9 @@ import Track from "./Track.js";
 
 export default class {
     constructor() {
-        this.player.on(AudioPlayerStatus.Idle, async () => {
-            let song = this.shift();
-            if (song == void 0) return;
-
-            await this.play(song);
-            this.interaction.editReply({
-                content: `**Now playing**\n[${song.name}](<${song.url}>)`
-            }).catch(function(error) {
-                console.error(`Player: ${error.message}`);
-            });
+        this.player.on("idle", async () => {
+            this.unshift && (this.unshift = false, true) || this.songs.shift();
+            this.currentTrack !== null && await this.play(this.currentTrack);
         });
 
 		this.player.on("error", (error) => {
@@ -31,11 +24,11 @@ export default class {
     connection = null;
     interaction = null;
     player = createAudioPlayer();
-    repeatQueue = false;
     songs = new SongHandler();
+    unshift = false;
     volume = 100;
     get currentTrack() {
-        return Array.from(this.songs.values())[0] || null;
+        return this.songs.at(0) || null;
     }
 
     get stopped() {
@@ -49,21 +42,24 @@ export default class {
 
     back() {
         let currentSong = this.currentTrack;
-        if (this.recentlyPlayed.length > 1) {
-            this.songs.splice(1, 0, this.recentlyPlayed.shift());
+        if (this.songs.recentlyPlayed.size > 0) {
+            let { value } = this.songs.recentlyPlayed.values().next();
+            this.songs.recentlyPlayed.delete(value);
+            this.songs.unshift(value);
+            this.unshift = true;
         }
 
         return this.player.stop(), currentSong;
     }
 
     loop(state = true) {
-        if (state == false || this.repeatQueue) {
+        if (state == false || this.songs.cycle) {
             this.setQueueLoop(false);
             this.setLoop(false);
             return;
         }
 
-        if (this.currentTrack?.looping) {
+        if (this.songs.freeze) {
             this.setQueueLoop(true);
             return;
         }
@@ -72,36 +68,11 @@ export default class {
     }
 
     setLoop(enabled) {
-        if (this.songs.size > 0) {
-            this.currentTrack.looping = enabled;
-            if (this.currentTrack.looping)
-                this.repeatQueue = false;
-
-            return this.currentTrack.looping;
-        }
-
-        return false;
+        return this.songs.freeze = enabled && (this.songs.cycle = false, true);
     }
 
     setQueueLoop(enabled) {
-        this.repeatQueue = enabled;
-        if (this.repeatQueue && this.songs.size > 0)
-            this.currentTrack.looping = false;
-
-        return this.repeatQueue;
-    }
-
-    shift() {
-        if (this.currentTrack?.looping) {
-            return this.currentTrack;
-        }
-
-        if (this.songs.recentlyPlayed.size > 5) {
-            this.songs.recentlyPlayed.delete(this.songs.recentlyPlayed.values().next().value);
-        }
-
-        this.repeatQueue && this.songs.add(this.currentTrack);
-        return this.songs.recentlyPlayed.add(this.songs.shift()), this.currentTrack || null;
+        return this.songs.cycle = enabled && (this.songs.freeze = false, true);
     }
 
     skip() {
@@ -124,13 +95,12 @@ export default class {
         this.setLoop(false);
     }
 
-
     toggleLoop() {
-        return this.setLoop(!this.currentTrack?.looping);
+        return this.setLoop(!this.songs.freeze);
     }
 
     toggleQueueLoop() {
-        return this.setQueueLoop(!this.repeatQueue);
+        return this.setQueueLoop(!this.songs.cycle);
     }
 
 	search(query) {
@@ -183,7 +153,7 @@ export default class {
         if (!(song instanceof Track)) {
             let search = await this.search(song);
             search instanceof Array ? this.songs.add(...search) : this.songs.add(search);
-            song = Array.from(this.songs.values()).at(-1);
+            song = this.songs.at(-1);
         }
 
         if (!this.stopped && (this.currentTrack.playing && !song.playing)) {
@@ -199,6 +169,9 @@ export default class {
         resource.volume.setVolumeLogarithmic(this.volume / 100);
         this.player.play(resource);
         this.connection.subscription = this.connection.subscribe(this.player);
+        this.interaction.editReply({
+            content: `**Now playing**\n[${song.name}](<${song.url}>)`
+        }).catch(console.error);
 
         return song;
     }
@@ -213,10 +186,6 @@ export default class {
     static getPlaylist(playlist, callback = (response) => response) {
         return ytpl(playlist).then(callback);
     }
-}
-
-Array.prototype.replicate = function() {
-    return this.push(this.shift()), this.at(-1);
 }
 
 BaseGuildVoiceChannel.prototype.join = function(deaf = true) {

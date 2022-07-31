@@ -19,14 +19,14 @@ export default {
                     type: 1,
                     components: [{
                         type: 2,
-                        label: queue.currentTrack?.looping ? "Stop Looping" : "Loop Track",
-                        style: 1 + queue.currentTrack?.looping,
-                        customId: queue.currentTrack?.looping ? "musicUnloop" : "musicLoop-track"
+                        label: queue.songs.freeze ? "Stop Looping" : "Loop Track",
+                        style: 1 + queue.songs.freeze,
+                        customId: queue.songs.freeze ? "musicUnloop" : "musicLoop-track"
                     }, {
                         type: 2,
-                        label: queue.repeatQueue ? "Stop Looping Queue" : "Loop Queue",
-                        style: 1 + queue.repeatQueue,
-                        customId: queue.repeatQueue ? "musicUnloop" : "musicLoop-queue"
+                        label: queue.songs.cycle ? "Stop Looping Queue" : "Loop Queue",
+                        style: 1 + queue.songs.cycle,
+                        customId: queue.songs.cycle ? "musicUnloop" : "musicLoop-queue"
                     }]
                 }]
             }

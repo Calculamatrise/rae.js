@@ -8,7 +8,7 @@ export default {
         }
 
         let queue = interaction.client.queues.get(interaction.guildId);
-        if (queue && queue.recentlyPlayed.length > 0) {
+        if (queue && queue.songs.recentlyPlayed.size > 0) {
             let song = queue.back();
             if (song) {
                 let content = {

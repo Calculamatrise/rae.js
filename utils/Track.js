@@ -16,7 +16,6 @@ export default class {
     url = null;
     engine = null;
     resource = null;
-    looping = false;
     playing = false;
     options = {
         seek: 0
@@ -29,6 +28,7 @@ export default class {
                     seek: this.options.seek / 1000,
                     filter: "audioonly",
                     fmt: "ogg",
+                    highWaterMark: 1 << 25,
                     quality: "highestaudio"
                 });
             } else if (this.engine == "youtube") {
