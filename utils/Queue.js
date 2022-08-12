@@ -1,4 +1,4 @@
-import { createAudioPlayer, joinVoiceChannel } from "@discordjs/voice";
+import { AudioPlayerStatus, createAudioPlayer, joinVoiceChannel, NoSubscriberBehavior } from "@discordjs/voice";
 import { BaseGuildVoiceChannel } from "discord.js";
 import ytsr from "ytsr";
 import ytpl from "ytpl";
@@ -10,20 +10,33 @@ const { getData } = spoof(fetch);
 import SongHandler from "../handlers/songs.js";
 import Track from "./Track.js";
 
+process.env.YTDL_NO_UPDATE = true;
+
 export default class {
     constructor() {
-        this.player.on("idle", async () => {
+        this.player.on(AudioPlayerStatus.Idle, async () => {
             this.unshift && (this.unshift = false, true) || this.songs.shift();
-            this.currentTrack !== null && await this.play(this.currentTrack);
+            if (this.currentTrack !== null) {
+                let song = await this.play(this.currentTrack);
+                if (this.interaction !== null && song) {
+                    this.interaction.editReply({
+                        content: `**Now playing**\n[${song.name}](<${song.url}>)`
+                    }).catch(console.error);
+                }
+            }
         });
 
-		this.player.on("error", (error) => {
+		this.player.on("error", error => {
             console.error("Player:", error.message);
 		});
     }
     connection = null;
     interaction = null;
-    player = createAudioPlayer();
+    player = createAudioPlayer({
+        behaviors: {
+            noSubscriber: NoSubscriberBehavior.Play
+        }
+    });
     songs = new SongHandler();
     unshift = false;
     volume = 100;
@@ -38,6 +51,7 @@ export default class {
     init(interaction) {
         this.interaction = interaction;
         this.connection = interaction.member.voice.channel.join();
+        this.connection.subscription = this.connection.subscribe(this.player);
     }
 
     back() {
@@ -82,6 +96,11 @@ export default class {
 
     stop() {
         if (this.connection !== null) {
+            if (this.connection.subscription !== null) {
+                this.connection.subscription.unsubscribe();
+                this.connection.subscription = null;
+            }
+
             this.connection.destroy();
             this.connection = null;
         }
@@ -92,7 +111,7 @@ export default class {
         }
 
         this.songs.clear();
-        this.setLoop(false);
+        this.loop(false);
     }
 
     toggleLoop() {
@@ -161,17 +180,15 @@ export default class {
         }
 
         song = this.currentTrack;
-        if (this.connection.subscription) {
-            this.connection.subscription.unsubscribe();
-        }
 
         let resource = await song.createAudioResource();
         resource.volume.setVolumeLogarithmic(this.volume / 100);
         this.player.play(resource);
-        this.connection.subscription = this.connection.subscribe(this.player);
-        this.interaction.editReply({
-            content: `**Now playing**\n[${song.name}](<${song.url}>)`
-        }).catch(console.error);
+        // await new Promise((resolve, reject) => {
+        //     this.player.play(resource);
+        //     this.player.once(AudioPlayerStatus.Playing, resolve);
+        //     this.player.once("error", reject);
+        // });
 
         return song;
     }

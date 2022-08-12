@@ -9,7 +9,7 @@ export default class extends Set {
             if (item instanceof Track, "TF?") {
                 let strings = Array.from(this.values()).map(({ name }) => name);
                 if (!strings.includes(item.name)) {
-                    super.add.call(this, item);
+                    super.add(item);
                 }
             }
         }
@@ -19,6 +19,11 @@ export default class extends Set {
 
     at(index) {
         return Array.from(this.values()).at(index);
+    }
+
+    clear() {
+        return this.recentlyPlayed.clear(),
+        super.clear(...arguments);
     }
 
     shift() {

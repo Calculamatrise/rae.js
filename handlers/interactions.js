@@ -1,7 +1,7 @@
 export default class {
     #events = new Map();
     on(event, structure) {
-        if (event === void 0 || typeof event != "string") {
+        if (typeof event != "string") {
             throw TypeError("INVALID_LISTENER");
         }
 

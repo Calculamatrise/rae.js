@@ -17,20 +17,22 @@ export default class {
     engine = null;
     resource = null;
     playing = false;
+    stream = null;
+    streamType = StreamType.Arbitrary;
     options = {
         seek: 0
     }
     async createAudioResource() {
-        this.playing = true;
         if (this.stream ?? true) {
             if (this.engine == "spotify") {
                 this.stream = await spdl(this.url, {
                     seek: this.options.seek / 1000,
                     filter: "audioonly",
-                    fmt: "ogg",
+                    format: "mp3",
                     highWaterMark: 1 << 25,
                     quality: "highestaudio"
                 });
+                this.streamType = StreamType.Raw;
             } else if (this.engine == "youtube") {
                 this.stream = ytdl(this.url, {
                     begin: this.options.seek,
@@ -39,12 +41,14 @@ export default class {
                     highWaterMark: 1 << 25,
                     quality: "highestaudio"
                 });
+                this.streamType = StreamType.Arbitrary;
             }
         }
 
+        this.playing = true;
         this.resource = createAudioResource(this.stream, {
             inlineVolume: true,
-            inputType: StreamType.Arbitrary,
+            inputType: this.streamType,
             metadata: this
         });
 
