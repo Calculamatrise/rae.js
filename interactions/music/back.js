@@ -7,9 +7,9 @@ export default {
             }
         }
 
-        let queue = interaction.client.queues.get(interaction.guildId);
-        if (queue && queue.songs.recentlyPlayed.size > 0) {
-            let song = queue.back();
+        let player = interaction.client.players.get(interaction.guildId);
+        if (player && player.queue.recentlyPlayed.size > 0) {
+            let song = player.back();
             if (song) {
                 let content = {
                     content: `**Now playing**\n[${song.name}](<${song.url}>)`,
@@ -34,7 +34,7 @@ export default {
                     }]
                 }
 
-                return queue.interaction.editReply(content).then(function() {
+                return player.interaction.editReply(content).then(function() {
                     return {
                         content: "Backed the track!",
                         ephemeral: true

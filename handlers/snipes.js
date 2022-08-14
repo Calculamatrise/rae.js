@@ -34,7 +34,7 @@ export default class {
         }
 
         const channel = this[type].get(id);
-        channel.push(data);
-        return data;
+        return channel.push(data),
+        data;
     }
 }

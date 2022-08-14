@@ -7,11 +7,11 @@ export default {
             }
         }
 
-        let queue = interaction.client.queues.get(interaction.guildId);
-        if (queue && !queue.stopped) {
-            queue.setLoop(false);
-            queue.setQueueLoop(false);
-            let song = queue.currentTrack;
+        let player = interaction.client.players.get(interaction.guildId);
+        if (player && !player.stopped) {
+            player.setLoop(false);
+            player.setQueueLoop(false);
+            let song = player.currentTrack;
             let content = {
                 content: `**Now playing**\n[${song.name}](<${song.url}>)`,
                 components: [{
@@ -30,7 +30,7 @@ export default {
                 }]
             }
 
-            return queue.interaction.editReply(content).then(function() {
+            return player.interaction.editReply(content).then(function() {
                 return {
                     content: "Unlooped the loop.",
                     ephemeral: true

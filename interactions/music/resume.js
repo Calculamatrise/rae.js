@@ -7,11 +7,11 @@ export default {
             }
         }
 
-        let queue = interaction.client.queues.get(interaction.guildId);
-        if (queue && queue.stopped) {
-            queue.player.unpause();
+        let player = interaction.client.players.get(interaction.guildId);
+        if (player && player.stopped) {
+            player.unpause();
             let content = {
-                content: `**Now playing**\n[${queue.currentTrack.name}](<${queue.currentTrack.url}>)`,
+                content: `**Now playing**\n[${player.currentTrack.name}](<${player.currentTrack.url}>)`,
                 components: [{
                     type: 1,
                     components: [{

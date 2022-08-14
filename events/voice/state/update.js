@@ -5,16 +5,16 @@ export default function(oldState, newState) {
         });
     }
 
-    let queue = this.queues.get(oldState.guild.id);
-    if (queue) {
+    let player = this.players.get(oldState.guild.id);
+    if (player) {
         if (!newState.channelId && this.user.id == newState.id) {
-            return queue.stop();
+            return player.stop();
         }
 
         if (oldState.channelId === newState.channelId) return;
         setTimeout(() => {
-            if (queue.interaction && queue.interaction.guild.members.me.voice.channel && queue.interaction.guild.members.me.voice.channel.members.size < 2) {
-                return queue.stop();
+            if (player.interaction && player.interaction.guild.members.me.voice.channel && player.interaction.guild.members.me.voice.channel.members.size < 2) {
+                return player.stop();
             }
         }, 3e5);
     }

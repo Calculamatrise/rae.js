@@ -7,9 +7,9 @@ export default {
             }
         }
 
-        let queue = interaction.client.queues.get(interaction.guildId);
-        if (queue && !queue.stopped) {
-            queue.stop();
+        let player = interaction.client.players.get(interaction.guildId);
+        if (player && !player.stopped) {
+            player.stop();
             return {
                 content: "I've stopped playing music."
             }

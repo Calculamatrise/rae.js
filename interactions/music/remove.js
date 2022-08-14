@@ -9,17 +9,17 @@ export default {
             }
         }
 
-        let queue = interaction.client.queues.get(interaction.guildId);
-        if (!queue || queue.songs.size === 0) {
+        let player = interaction.client.players.get(interaction.guildId);
+        if (!player || player.queue.size === 0) {
             return {
                 content: "No songs are playing.",
                 ephemeral: true
             }
         }
 
-        let song = Array.from(queue.songs.values())[options.getInteger("track")];
+        let song = Array.from(player.queue.values())[options.getInteger("track")];
         if (song instanceof Track) {
-            queue.songs.delete(song);
+            player.queue.delete(song);
             return {
                 content: `Successfully removed **${song.name}** from the queue.`
             }
@@ -30,10 +30,10 @@ export default {
         }
     },
     focus(interaction, option) {
-        if (interaction.client.queues.has(interaction.guildId)) {
-            let queue = interaction.client.queues.get(interaction.guildId);
-            if (queue.songs.size > 0) {
-                return Array.from(queue.songs.values())
+        if (interaction.client.players.has(interaction.guildId)) {
+            let player = interaction.client.players.get(interaction.guildId);
+            if (player.queue.size > 0) {
+                return Array.from(player.queue.values())
                 .slice(0, 25)
                 .map(({ name }, index) => ({ name, value: index }))
                 .filter(prof =>  prof.name.toLowerCase().includes(option.value.toLowerCase()))

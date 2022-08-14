@@ -1,4 +1,4 @@
-import Queue from "../../utils/Queue.js";
+import Player from "../../utils/Player.js";
 
 export default {
     async execute(interaction, options) {
@@ -10,35 +10,35 @@ export default {
         }
 
         await interaction.deferReply();
-        if (!interaction.client.queues.has(interaction.guildId)) {
-            interaction.client.queues.set(interaction.guildId, new Queue());
+        if (!interaction.client.players.has(interaction.guildId)) {
+            interaction.client.players.set(interaction.guildId, new Player());
         }
 
-        let queue = interaction.client.queues.get(interaction.guildId);
-        if (queue.interaction !== null && queue.interaction.replied) {
-            queue.interaction.editReply({ components: [] }).catch(function(error) {
+        let player = interaction.client.players.get(interaction.guildId);
+        if (player.interaction !== null && player.interaction.replied) {
+            player.interaction.editReply({ components: [] }).catch(function(error) {
                 console.error(`QueueManager: ${error.message}`);
             });
         }
 
-        queue.init(interaction);
-        return queue.play(options.getString("song")).then(function(song) {
+        player.init(interaction);
+        return player.play(options.getString("song")).then(function(song) {
             return {
-                content: `**${song.playing ? "Now playing" : "Track Queued - Position " + queue.songs.size}**\n[${song.name}](<${song.url}>)`,
+                content: `**${song.playing ? "Now playing" : "Track Queued - Position " + player.queue.size}**\n[${song.name}](<${song.url}>)`,
                 components: [{
                     type: 1,
                     components: [{
                         type: 2,
-                        label: queue.songs.freeze ? "Stop Looping" : "Loop Track",
-                        style: 1 + queue.songs.freeze,
-                        customId: queue.songs.freeze ? "musicUnloop" : "musicLoop-track",
+                        label: player.queue.freeze ? "Stop Looping" : "Loop Track",
+                        style: 1 + player.queue.freeze,
+                        customId: player.queue.freeze ? "musicUnloop" : "musicLoop-track",
                         emoji: null, // "🔂",
                         disabled: false
                     }, {
                         type: 2,
-                        label: queue.songs.cycle ? "Stop Looping Queue" : "Loop Queue",
-                        style: 1 + queue.songs.cycle,
-                        customId: queue.songs.cycle ? "musicUnloop" : "musicLoop-queue",
+                        label: player.queue.cycle ? "Stop Looping Queue" : "Loop Queue",
+                        style: 1 + player.queue.cycle,
+                        customId: player.queue.cycle ? "musicUnloop" : "musicLoop-queue",
                         emoji: null, // "🔁",
                         disabled: false
                     }, {
@@ -60,10 +60,13 @@ export default {
         });
     },
     focus(interaction, option) {
-        if (interaction.client.queues.has(interaction.guildId)) {
-            let queue = interaction.client.queues.get(interaction.guildId);
-            if (queue.songs.recentlyPlayed.size > 0) {
-                return Array.from(queue.songs.recentlyPlayed.values())
+        if (interaction.client.players.has(interaction.guildId)) {
+            let player = interaction.client.players.get(interaction.guildId);
+            if (player.queue.recentlyPlayed.size > 0) {
+                console.log(Array.from(player.queue.recentlyPlayed.values())
+                .slice(0, 25)
+                .reverse())
+                return Array.from(player.queue.recentlyPlayed.values())
                 .slice(0, 25)
                 .reverse()
                 .map(({ name, url }) => ({ name, value: url }))
@@ -81,7 +84,7 @@ export default {
         }
 
         if (option.value.length < 1) return [];
-        return Queue.getVideo(option.value, { limit: 5 }).then(songs => songs.map(({ title, url }) => ({ name: title, value: url || title }))).catch(function(error) {
+        return Player.getVideo(option.value, { limit: 5 }).then(songs => songs.map(({ title, url }) => ({ name: title, value: url || title }))).catch(function(error) {
             console.error("PlayFocusInteraction", error.message);
             return [];
         });

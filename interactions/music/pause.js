@@ -7,11 +7,11 @@ export default {
             }
         }
 
-        let queue = interaction.client.queues.get(interaction.guildId);
-        if (queue && !queue.stopped) {
-            queue.player.pause();
+        let player = interaction.client.players.get(interaction.guildId);
+        if (player && !player.stopped) {
+            player.pause();
             let content = {
-                content: `**Paused**\n[${queue.currentTrack.name}](<${queue.currentTrack.url}>)`,
+                content: `**Paused**\n[${player.currentTrack.name}](<${player.currentTrack.url}>)`,
                 components: [{
                     type: 1,
                     components: [{
@@ -33,7 +33,7 @@ export default {
                 }]
             }
 
-            return queue.interaction.editReply(content).then(function() {
+            return player.interaction.editReply(content).then(function() {
                 return {
                     content: "Paused.",
                     ephemeral: true

@@ -18,7 +18,7 @@ export default class extends Client {
         this.snipes = new SnipeHandler();
         
         this.deafs = new Temp();
-        this.queues = new Map();
+        this.players = new Map();
 
         this.#import("./events", events => {
             events.forEach(({ camel, event }) => {
