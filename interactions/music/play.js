@@ -1,4 +1,5 @@
 import Player from "../../utils/Player.js";
+import Seach from "../../utils/Seach.js";
 
 export default {
     async execute(interaction, options) {
@@ -63,9 +64,6 @@ export default {
         if (interaction.client.players.has(interaction.guildId)) {
             let player = interaction.client.players.get(interaction.guildId);
             if (player.queue.recentlyPlayed.size > 0) {
-                console.log(Array.from(player.queue.recentlyPlayed.values())
-                .slice(0, 25)
-                .reverse())
                 return Array.from(player.queue.recentlyPlayed.values())
                 .slice(0, 25)
                 .reverse()
@@ -84,7 +82,28 @@ export default {
         }
 
         if (option.value.length < 1) return [];
-        return Player.getVideo(option.value, { limit: 5 }).then(songs => songs.map(({ title, url }) => ({ name: title, value: url || title }))).catch(function(error) {
+        return Seach.query(option.value, { limit: 5 }).then(function(data) {
+            if (data instanceof Array) {
+                return data.map(function({ name, url }) {
+                    return {
+                        name: name,
+                        value: url || name
+                    }
+                });
+            } else if ('entries' in data) {
+                return data.entries.map(function({ name, url }) {
+                    return {
+                        name: name,
+                        value: url || name
+                    }
+                });
+            }
+
+            return [{
+                name: data.name,
+                value: data.url || data.name
+            }]
+        }).catch(function(error) {
             console.error("PlayFocusInteraction", error.message);
             return [];
         });

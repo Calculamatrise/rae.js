@@ -39,15 +39,12 @@ export default class {
                     this.entries = options[key].map(function(item) {
                         return new Track(item);
                     });
+                    break;
                 }
 
                 case 'tracks': {
-                    console.log(options[key], key)
-                    this.entries = options[key].map(function(item) {
-                        return new Track(item);
-                    });
                     if (typeof options[key] == 'object') {
-                        // return new this.constructor({ ...options, items: options[key].items });
+                        return new this.constructor({ ...options, ...options[key] });
                     }
                 }
             }

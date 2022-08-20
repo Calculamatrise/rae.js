@@ -12,8 +12,22 @@ import Playlist from "./Playlist.js";
 import Track from "./Track.js";
 
 export default class {
-    static async search(query, callback) {
-        const data = await this.playlist(query).catch(() => this.video(query));
+    /**
+     * Search for a song or playlist
+     * @param {String} query
+     * @param {Object} options
+     * @param {Function} callback
+     * @returns {(Playlist|Track)}
+     */
+    static async query(query, options = {}) {
+        if (spdl.validateURL(query)) {
+            return new Track(await spdl.getInfo(query));
+        } else if (ytdl.validateURL(query)) {
+            return new Track(await ytdl.getInfo(query));
+        }
+
+        const data = await this.playlist(query).catch(() => this.video(query, options));
+        const callback = Array.from(arguments).at(-1);
         if (typeof callback == 'function') {
             callback(data);
         }
@@ -38,7 +52,9 @@ export default class {
 
         return ytsr(query.replace(/.*(?<=v=)|(?=&).*/g, ''), { limit }).then(function({ items }) {
             if (limit == 1) return new Track(items[0]);
-            return items;
+            return items.map(function(track) {
+                return new Track(track);
+            });
         });
     }
 }
