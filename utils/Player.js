@@ -30,7 +30,8 @@ export default class Player extends AudioPlayer {
             console.error("Player:", error.message);
             if (this.interaction !== null) {
                 this.interaction.editReply({
-                    content: `One of my libraries decided to be a pain in the ass: ${error.message}`
+                    content: `One of my libraries decided to be a pain in the ass: ${error.message}`,
+                    components: []
                 }).catch(console.error);
             }
 		});

@@ -73,28 +73,30 @@ export default class {
 
     async createAudioResource() {
         if (this.#stream === null) {
-            if (this.engine == "spotify") {
-                this.#stream = await spdl(this.url, {
-                    seek: this.options.seek / 1000,
-                    filter: "audioonly",
-                    format: "mp3",
-                    highWaterMark: 1 << 25,
-                    quality: "highestaudio"
-                });
-                this.#streamType = StreamType.Raw;
-            } else if (this.engine == "youtube") {
-                this.#stream = ytdl(this.url, {
-                    begin: this.options.seek,
-                    filter: "audioonly",
-                    format: "ogg",
-                    highWaterMark: 1 << 25,
-                    quality: "highestaudio"
-                });
-                this.#streamType = StreamType.Arbitrary;
+            switch(this.engine) {
+                case 'spotify': {
+                    this.#stream = await spdl(this.url, {
+                        seek: this.options.seek / 1000,
+                        filter: "audioonly",
+                        highWaterMark: 1 << 25,
+                        quality: "highestaudio"
+                    });
+                    this.#streamType = StreamType.Raw;
+                    break;
+                }
+
+                case 'youtube': {
+                    this.#stream = ytdl(this.url, {
+                        begin: this.options.seek,
+                        filter: "audioonly",
+                        highWaterMark: 1 << 25,
+                        quality: "highestaudio"
+                    });
+                    this.#streamType = StreamType.Arbitrary;
+                    break;
+                }
             }
         }
-
-        console.log(this.#stream.type, this.#stream.encoder)
 
         this.playing = true;
         return this.resource;

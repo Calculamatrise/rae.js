@@ -1,7 +1,7 @@
 import fetch from "node-fetch";
 import spoof from "spotify-url-info";
 
-const { getData } = spoof(fetch);
+const { getData, getTracks } = spoof(fetch);
 
 import spdl from "spdl-core";
 import ytdl from "ytdl-core";
