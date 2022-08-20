@@ -187,9 +187,9 @@ export default class Player extends AudioPlayer {
         resource.volume.setVolumeLogarithmic(this.volume / 100);
         super.play(resource);
         // await new Promise((resolve, reject) => {
-        //     this.player.play(resource);
-        //     this.player.once(AudioPlayerStatus.Playing, resolve);
-        //     this.player.once("error", reject);
+        //     this.once(AudioPlayerStatus.Playing, resolve);
+        //     this.once("error", reject);
+        //     super.play(resource);
         // });
 
         return song;
