@@ -7,7 +7,9 @@ import spoof from "spotify-url-info";
 
 const { getData } = spoof(fetch);
 
+import Playlist from "./Playlist.js";
 import Queue from "./Queue.js";
+import Seach from "./Seach.js";
 import Track from "./Track.js";
 
 process.env.YTDL_NO_UPDATE = true;
@@ -124,7 +126,16 @@ export default class Player extends AudioPlayer {
         return this.setQueueLoop(!this.queue.cycle);
     }
 
-	search(query) {
+	async search(query) {
+        const data = await Seach.search(query);
+        if (data instanceof Playlist) {
+            console.log("PLAYLIST", data);
+            return;
+        }
+
+        console.log("TRACK", data)
+        return;
+
         return getData(query).then(data => {
             switch(data.type) {
                 case "track":

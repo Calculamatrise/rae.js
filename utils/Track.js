@@ -3,13 +3,47 @@ import spdl from "spdl-core";
 import ytdl from "ytdl-core";
 
 export default class {
-    constructor({ name, url, engine, options = {}} = {}) {
-        this.name = name;
-        this.url = url;
-        this.engine = engine;
-        this.options = {
-            ...this.options,
-            ...options
+    constructor(options = {}) {
+        // console.log(options);
+        for (const key in options) {
+            switch(key) {
+                case 'name':
+                case 'title': {
+                    this.name = options[key];
+                    break;
+                }
+
+                case 'url': {
+                    this.engine = 'youtube';
+                    this.url = options[key];
+                    break;
+                }
+
+                case 'external_urls': {
+                    this.engine = 'spotify';
+                    this.url = options[key].spotify;
+                    break;
+                }
+
+                case 'options': {
+                    const config = options[key];
+                    for (const key in config) {
+                        switch(key) {
+                            case 'seek': {
+                                this.options.seek = config[key];
+                                break;
+                            }
+                        }
+                    }
+                    break;
+                }
+
+                case 'track': {
+                    if (typeof options[key] == 'object') {
+                        return new this.constructor(options[key]);
+                    }
+                }
+            }
         }
     }
     name = null;
