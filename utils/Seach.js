@@ -20,10 +20,8 @@ export default class {
      * @returns {(Playlist|Track)}
      */
     static async query(query, options = {}) {
-        if (spdl.validateURL(query)) {
-            return new Track(await spdl.getInfo(query));
-        } else if (ytdl.validateURL(query)) {
-            return new Track(await ytdl.getInfo(query));
+        if (spdl.validateURL(query) || ytdl.validateURL(query)) {
+            return this.video(query);
         }
 
         const data = await this.playlist(query).catch(() => this.video(query, options));
@@ -47,7 +45,7 @@ export default class {
         if (spdl.validateURL(query)) {
             return new Track(await spdl.getInfo(query));
         } else if (ytdl.validateURL(query)) {
-            return new Track(await ytdl.getInfo(query));
+            return new Track(await ytdl.getBasicInfo(query).then(({ videoDetails }) => videoDetails));
         }
 
         return ytsr(query.replace(/.*(?<=v=)|(?=&).*/g, ''), { limit }).then(function({ items }) {

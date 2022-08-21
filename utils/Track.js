@@ -39,7 +39,8 @@ export default class {
                     break;
                 }
 
-                case 'url': {
+                case 'url':
+                case 'video_url': {
                     this.url = options[key];
                     break;
                 }
