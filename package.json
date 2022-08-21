@@ -13,7 +13,6 @@
 		"paster.js": "^1.0.0",
 		"spdl-core": "^2.0.2",
 		"spotify-url-info": "^3.1.4",
-		"ytdl-core": "^4.10.0",
 		"ytpl": "^2.3.0",
 		"ytsr": "^3.8.0"
 	},
