@@ -10,6 +10,12 @@ import User from "../models/user.js";
 import Temp from "../utils/Temp.js";
 
 export default class extends Client {
+    chatbridge = {
+        messages: new Map(),
+        users: new Map()
+    }
+
+    developerMode = false;
     constructor() {
 		super(...arguments);
 
@@ -60,11 +66,7 @@ export default class extends Client {
             console.warn("I've lost connection to the database!");
         });
 	}
-    chatbridge = {
-        messages: new Map(),
-        users: new Map()
-    }
-    developerMode = false;
+
     #import(directory, callback = (response) => response) {
         return new Promise((resolve, reject) => {
             readdir(directory, async (error, events) => {
@@ -125,7 +127,7 @@ export default class extends Client {
             });
 
             for (const { data, menudata: { message, user } = {}} of this.interactions.values()) {
-                if (this.developerMode && data && data.name != "music") continue;
+                // if (this.developerMode && data && data.name != "music") continue;
                 data && await commands.create(data);
                 message && await commands.create(message);
                 user && await commands.create(user);
