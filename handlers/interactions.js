@@ -1,11 +1,11 @@
 export default class {
     #events = new Map();
-    on(event, structure) {
+    on(event, listener) {
         if (typeof event != "string") {
             throw TypeError("INVALID_LISTENER");
         }
 
-        return this.#events.set(event, structure);
+        return this.#events.set(event, listener);
     }
 
     emit(event, ...args) {
@@ -31,11 +31,9 @@ export default class {
 
     get(event) {
         for (const item of this.values()) {
-            if (item.menudata !== void 0) {
-                for (const menu in item.menudata) {
-                    if (item.menudata[menu].name == event) {
-                        return item;
-                    }
+            for (const menu in item.menus) {
+                if (item.menus[menu].name == event) {
+                    return item;
                 }
             }
         }
@@ -46,11 +44,9 @@ export default class {
     has(event, meta = false) {
         if (meta) {
             for (const item of this.values()) {
-                if (item.menudata !== void 0) {
-                    for (const menu in item.menudata) {
-                        if (item.menudata[menu].name == event) {
-                            return true;
-                        }
+                for (const menu in item.menus) {
+                    if (item.menus[menu].name == event) {
+                        return true;
                     }
                 }
             }

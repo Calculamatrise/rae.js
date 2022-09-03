@@ -46,7 +46,6 @@ export default {
         }
     },
     data: {
-        name: "snipe",
         description: "Snipe a recently edited or deleted message.",
         options: [{
             name: "type",
@@ -76,7 +75,7 @@ export default {
             required: false
         }]
     },
-    menudata: {
+    menus: {
         message: {
             name: "snipe",
             type: 3

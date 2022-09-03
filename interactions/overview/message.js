@@ -18,7 +18,7 @@ export default {
             ephemeral: true
         }
     },
-    menudata: {
+    menus: {
         user: {
             name: "overview",
             type: 3

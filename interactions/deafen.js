@@ -54,7 +54,6 @@ export default {
         return this.execute(...arguments);
     },
     data: {
-        name: "deafen",
         description: "Timed deafen.",
         default_member_permissions: 1 << 23,
         dm_permission: false,
@@ -63,7 +62,7 @@ export default {
             description: "User to deafen.",
             type: 6,
             required: true
-        },{
+        }, {
             name: "time",
             description: "Duration of deafen.",
             type: 3,

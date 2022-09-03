@@ -1,6 +1,5 @@
 export default {
     data: {
-        name: "virtual",
         description: "Interact virtually with other users!",
         dm_permission: false,
         options: [{

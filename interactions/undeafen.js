@@ -57,7 +57,6 @@ export default {
         return this.execute(...arguments);
     },
     data: {
-        name: "undeafen",
         description: "Undeafen a deafened user.",
         default_member_permissions: 1 << 23,
         dm_permission: false,

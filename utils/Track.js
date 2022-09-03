@@ -2,6 +2,14 @@ import { createAudioResource, StreamType } from "@discordjs/voice";
 import spdl from "spdl-core";
 import ytdl from "ytdl-core";
 
+import fetch from "node-fetch";
+
+import { Readable } from "stream";
+import { createReadStream } from "fs";
+
+import http from "http";
+import https from "https";
+
 export default class {
     #engine = null;
     #stream = null;
@@ -95,6 +103,17 @@ export default class {
                     });
                     this.#streamType = StreamType.Arbitrary;
                     break;
+                }
+
+                default: {
+                    // const stream = new Readable();
+                    // https.get(this.url, (stream) => {
+                    //     console.log(Readable.from(stream))
+                    //     // stream.pipe(stream);
+                    // });
+
+                    this.#stream = this.url;
+                    this.#streamType = StreamType.Raw;
                 }
             }
         }

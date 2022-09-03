@@ -91,7 +91,6 @@ export default {
         }
     },
     data: {
-        name: "eval",
         description: "Execute code on discord.",
         default_member_permissions: 0,
         options: [{
@@ -101,7 +100,7 @@ export default {
             required: true
         }],
     },
-    menudata: {
+    menus: {
         message: {
             name: "eval",
             default_member_permissions: 0,

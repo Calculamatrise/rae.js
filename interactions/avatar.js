@@ -1,5 +1,5 @@
 export default {
-    async execute(interaction, options) {
+    execute(interaction, options) {
         const { user } = options.get("user");
         return {
             ephemeral: true,
@@ -9,7 +9,6 @@ export default {
         }
     },
     data: {
-        name: "avatar",
         description: "Get someone's avatar.. I guess",
         options: [{
             name: "user",
@@ -18,7 +17,7 @@ export default {
             required: true
         }]
     },
-    menudata: {
+    menus: {
         user: {
             name: "avatar",
             type: 2

@@ -1,6 +1,5 @@
 export default {
     data: {
-        name: "chatbridge",
         description: "Communicate to other users Discord wide via DMs.",
         // default_member_permissions: 0,
         options: [{

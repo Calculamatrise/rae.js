@@ -1,6 +1,5 @@
 export default {
     data: {
-        name: "overview",
         description: "Gather publicly available data.",
         options: [{
             name: "guild",

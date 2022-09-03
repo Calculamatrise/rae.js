@@ -43,41 +43,38 @@ export default {
             }]
         }
     },
-    click(interaction, options, args) {
-        return this[args[0].value](...arguments);
-    },
-    async add(interaction, options, args) {
-        if (interaction.member.roles.cache.has(args[1].value)) {
-            return {
-                content: "Looks like you already have this role!",
-                ephemeral: true
-            }
-        }
+    async click(interaction, options, args) {
+        switch(args[0].value.toLowerCase()) {
+            case 'add': {
+                if (interaction.member.roles.cache.has(args[1].value)) {
+                    return {
+                        content: "Looks like you already have this role!",
+                        ephemeral: true
+                    }
+                }
+        
+                if (interaction.guildId == "433783980345655306") {
+                    for (const role of ["842185148640395284", "833774597756289035", "833774455196483604"]) {
+                        if (interaction.member.roles.cache.has(role)) {
+                            await interaction.member.roles.remove(role);
+                        }
+                    }
+                }
 
-        if (interaction.guildId == "433783980345655306") {
-            for (const role of ["842185148640395284", "833774597756289035", "833774455196483604"]) {
-                if (interaction.member.roles.cache.has(role)) {
-                    await interaction.member.roles.remove(role);
+                interaction.member.roles.add(args[1].value);
+                break;
+            }
+
+            case 'remove': {
+                if (interaction.member.roles.cache.has(args[1].value)) {
+                    interaction.member.roles.remove(args[1].value);
+                    break;
                 }
             }
         }
-
-        await interaction.member.roles.add(args[1].value);
-    },
-    remove(interaction, options, args) {
-        if (interaction.member.roles.cache.has(args[1].value)) {
-            interaction.member.roles.remove(args[1].value);
-        }
-    },
-    toggle(interaction, options, args) {
-        if (interaction.member.roles.cache.has(args[1].value)) {
-            return this.remove(...arguments);
-        }
-
-        return this.add(...arguments);
+        return this[args[0].value](...arguments);
     },
     data: {
-        name: "role",
         description: "Create a single self-assignable role.",
         // default_member_permissions: 1 << 28,
         dm_permission: false,

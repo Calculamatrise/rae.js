@@ -1,6 +1,8 @@
 import { readdir } from "fs";
+import { extname, parse } from "path";
 import { Client } from "discord.js";
 
+import ChatbridgeHandler from "../handlers/chatbridge.js";
 import DatabaseHandler from "../handlers/database.js";
 import InteractionHandler from "../handlers/interactions.js";
 import SnipeHandler from "../handlers/snipes.js";
@@ -10,38 +12,15 @@ import User from "../models/user.js";
 import Temp from "../utils/Temp.js";
 
 export default class extends Client {
-    chatbridge = {
-        messages: new Map(),
-        users: new Map()
-    }
-
+    chatbridge = new ChatbridgeHandler(this);
+    database = new DatabaseHandler();
+    deafs = new Temp();
     developerMode = false;
+    interactions = new InteractionHandler();
+    players = new Map();
+    snipes = new SnipeHandler();
     constructor() {
 		super(...arguments);
-
-        this.database = new DatabaseHandler();
-        this.interactions = new InteractionHandler();
-        this.snipes = new SnipeHandler();
-        
-        this.deafs = new Temp();
-        this.players = new Map();
-
-        this.#import("./events", events => {
-            events.forEach(({ camel, event }) => {
-                this.on(camel, event)
-            });
-        });
-
-        this.#import("./interactions", events => {
-            events.forEach(({ camel, name, parent, event }) => {
-                if (parent !== null) {
-                    this.interactions.on(name == "index" ? parent : camel, event);
-                    return;
-                }
-
-                this.interactions.on(name, event);
-            });
-        });
 
         this.database.createStore(Guild);
         this.database.createStore(Member);
@@ -58,7 +37,6 @@ export default class extends Client {
         });
 
         this.database.on("error", function(error) {
-            console.error(error)
             console.error("Database:", error.message);
         });
 
@@ -67,48 +45,66 @@ export default class extends Client {
         });
 	}
 
-    #import(directory, callback = (response) => response) {
+    #import(directory, callback) {
         return new Promise((resolve, reject) => {
             readdir(directory, async (error, events) => {
                 if (error) reject(error);
                 let result = [];
                 for (const event of events) {
-                    if (event.endsWith(".js")) {
-                        result.push(await import(`.${directory}/${event}`).then(({ default: data }) => {
-                            let name = event.replace(/\.js$/i, "");
-                            let response = {
-                                camel: name, name,
-                                parent: null,
-                                event: data
-                            }
-
-                            let parents = directory.replace(/^\.\/[^/]*/g, "").match(/[^/]\w+[^/]/g, "");
-                            if (parents) {
-                                parents.push(name);
-                                response.parent = parents.shift();
-                                response.camel = response.parent + parents.map(event => event[0].toUpperCase() + event.slice(1)).join("");
-                            }
-
-                            return response;
+                    if (extname(event)) {
+                        result.push(await import(`.${directory}/${event}`).then(function(data) {
+                            return [
+                                directory.split("/").slice(2).concat(/^index\.js$/.test(event) ? '' : event.replace(extname(event), '')).map((event, index) => index > 0 ? event.replace(/^./, m => m.toUpperCase()) : event).join(""),
+                                data
+                            ]
                         }));
-                        continue;
+                    } else {
+                        result.push(...await this.#import(`${directory}/${event}`));
                     }
-
-                    result.push(...await this.#import(`${directory}/${event}`));
                 }
 
-                await callback(result), resolve(result);
+                result = new Map(result);
+                if (typeof callback == 'function') {
+                    callback(result);
+                }
+
+                resolve(result);
             });
         });
     }
 
+    async login() {
+        await this.#import("./events", events => {
+            events.forEach((event, name) => {
+                this.on(name, event.default);
+            });
+        });
+
+        await this.#import("./interactions", events => {
+            events.forEach((event, name) => {
+                if ('data' in event.default) {
+                    event.default.data.name = event.default.data.name ?? name.replace(/.*(?=[A-Z])/, '').toLowerCase();
+                }
+
+                if ('menus' in event.default) {
+                    for (const menu in event.default.menus) {
+                        event.default.menus[menu].name = event.default.menus[menu].name ?? name.replace(/.*(?=[A-Z])/, '').toLowerCase();
+                    }
+                }
+
+                this.interactions.on(name, event.default);
+            });
+        });
+
+        return super.login(...arguments);
+    }
+
     setIdle(status = true) {
-        if (typeof status !== "boolean") {
-            throw new TypeError("INVALID_BOOLEAN");
+        if (!status) {
+            setTimeout(() => this.user.setStatus("idle"), 6e4);
         }
 
-        status || setTimeout(() => this.user.setStatus("idle"), 6e4);
-        return this.user.setStatus(status ? "idle" : "online");;
+        return this.user.setStatus(status ? "idle" : "online");
     }
 
     deployCommands() {
@@ -118,16 +114,15 @@ export default class extends Client {
                 commands = this.guilds.cache.get("433783980345655306").commands;
             }
 
-            await commands.fetch().then(commands => {
-                commands.forEach((command) => {
-                    if (!this.interactions.has(command.name, command.type != 1)) {
-                        return command.delete();
-                    }
-                });
-            });
+            const live = await commands.fetch();
+            for (const command of live.values()) {
+                if (!this.interactions.has(command.name, command.type != 1)) {
+                    await command.delete();
+                }
+            }
 
-            for (const { data, menudata: { message, user } = {}} of this.interactions.values()) {
-                // if (this.developerMode && data && data.name != "music") continue;
+            for (const { data, menus: { message, user } = {}} of this.interactions.values()) {
+                // if (this.developerMode && data?.name != "avatar") continue;
                 data && await commands.create(data);
                 message && await commands.create(message);
                 user && await commands.create(user);

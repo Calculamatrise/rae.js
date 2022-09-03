@@ -83,7 +83,6 @@ export default {
         }
     },
     data: {
-        name: "math",
         description: "Because you love math so much-",
         options: [{
             name: "input",

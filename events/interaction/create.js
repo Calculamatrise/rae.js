@@ -4,58 +4,35 @@ export default async function(interaction) {
     let command = interaction.commandName;
     let subcommand = interaction.options?.getSubcommand(false);
     if (subcommand) {
-        command += subcommand[0].toUpperCase() + subcommand.slice(1);
+        command += subcommand.replace(/^./, char => char.toUpperCase());
     }
 
     let args = interaction.options?.data || [];
     if (interaction.isButton() || interaction.isSelectMenu()) {
-        command = interaction.customId.replace(/-.+/, "");
-        subcommand = command.replace(/.*(?=[A-Z])/g, "").toLowerCase();
-        if (interaction.customId.includes("-")) {
-            interaction.customId.replace(/^\w+-/gi, "").split("-").forEach(t => args.push({ value: t }));
+        [ command, ...args ] = interaction.customId.split('-');
+        subcommand = command.split(/(?=[A-Z])/).slice(1).at(-1);
+        if (subcommand) {
+            subcommand = subcommand.toLowerCase();
         }
 
+        args = args.map(t => ({ value: t })) || [];
         if (interaction.isSelectMenu()) {
-            interaction.values.map((item) => args.push({ value: item.value || item }));
+            interaction.values.forEach(item => args.push({ value: item.value ?? item }));
         }
     }
 
-    interaction.commandType = interaction.commandType || 1;
-    if (this.interactions.has(command, interaction.commandType != 1)) {
+    if (this.interactions.has(command, (interaction.commandType ?? 1) != 1)) {
         const event = this.interactions.get(command);
-        if (!interaction.isRepliable()) {
-            !interaction.responded && interaction.respond(await event.focus(interaction, interaction.options.getFocused(true))).catch(function(error) {
-                console.error("FocusedInteraction:", error.message);
-            });
-            return;
-        }
-
-        if (typeof event.data == "object") {
-            if (event.data.dm_permission === false && interaction.channel.type == 1) {
-                interaction.reply({
-                    content: "You may not use this command in direct messages.",
-                    ephemeral: true
-                });
-                return;
-            }
-
-            if (event.data.default_member_permissions) {
-                if (!interaction.member?.permissions.has(BigInt(event.data.default_member_permissions)) && interaction.user.id != interaction.client.application.owner.id) {
-                    interaction.reply({
-                        content: "Insufficient privledges.",
-                        ephemeral: true
-                    });
-                    return;
-                }
-            }
+        if (!interaction.isRepliable() && !interaction.responded) {
+            return void interaction.respond(await event.focus(interaction, interaction.options.getFocused(true)))
+            .catch(error => console.error("FocusedInteraction:", error.message));
         }
 
         if ((event.blacklist !== void 0 && event.blacklist.has(interaction.user.id)) || (event.whitelist !== void 0 && !event.whitelist.has(interaction.user.id))) {
-            interaction.reply({
+            return void interaction.reply({
                 content: event.response || "Insufficient privledges.",
                 ephemeral: true
             });
-            return;
         }
 
 

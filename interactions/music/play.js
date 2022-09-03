@@ -1,5 +1,6 @@
 import Player from "../../utils/Player.js";
-import Seach from "../../utils/Seach.js";
+import Search from "../../utils/Search.js";
+import Track from "../../utils/Track.js";
 
 export default {
     async execute(interaction, options) {
@@ -23,9 +24,16 @@ export default {
         }
 
         player.init(interaction);
-        return player.play(options.getString("song")).then(function(song) {
+
+        let file = options.getAttachment("file");
+        if (file !== null) {
+            file = new Track(file);
+            player.queue.add(file);
+        }
+
+        return player.play(file || options.getString("song")).then(function(song) {
             return {
-                content: `**${song.playing ? "Now playing" : "Track Queued - Position " + player.queue.size}**\n[${song.name}](<${song.url}>)`,
+                content: `**${song.playing ? "Now playing" : "Track Queued - Position " + player.queue.size}**\n[${song.name?.replace(/([-_|`*])/g, '\\$1')}](<${song.url}>)`,
                 components: [{
                     type: 1,
                     components: [{
@@ -82,7 +90,7 @@ export default {
         }
 
         if (option.value.length < 1) return [];
-        return Seach.query(option.value, { limit: 5 }).then(function(data) {
+        return Search.query(option.value, { limit: 5 }).then(function(data) {
             if (data instanceof Array) {
                 return data.map(function({ name, url }) {
                     return {

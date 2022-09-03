@@ -8,8 +8,9 @@ export default {
         }
 
         return interaction.client.database.users.set(interaction.user.id, { chatbridge: { enabled: true }}).then(function({ chatbridge }) {
+            interaction.client.chatbridge.send(`${interaction.user.tag} has opted into the chat bridge. Welcome!`);
             interaction.client.chatbridge.users.set(interaction.user.id, {
-                color: chatbridge.color,
+                color: parseInt(chatbridge.color.replace('#', ''), 16),
                 messages: []
             });
             return {

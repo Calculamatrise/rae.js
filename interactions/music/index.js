@@ -1,6 +1,5 @@
 export default {
     data: {
-        name: "music",
         description: "Music player for voice channels.",
         default_member_permissions: 1 << 20,
         dm_permission: false,
@@ -14,6 +13,11 @@ export default {
                 type: 3,
                 required: true,
                 autocomplete: true
+            }, {
+                name: "file",
+                description: "A song name or url.",
+                type: 11,
+                required: false
             }]
         }, {
             name: "loop",

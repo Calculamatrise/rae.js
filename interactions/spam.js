@@ -28,7 +28,6 @@ export default {
         });
     },
     data: {
-        name: "spam",
         description: "Spam another member.",
         default_member_permissions: 0,
         options: [{
@@ -43,7 +42,7 @@ export default {
             required: false
         }]
     },
-    menudata: {
+    menus: {
         user: {
             name: "spam",
             default_member_permissions: 0,

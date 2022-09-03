@@ -3,7 +3,7 @@ import { BaseGuildVoiceChannel } from "discord.js";
 
 import Playlist from "./Playlist.js";
 import Queue from "./Queue.js";
-import Seach from "./Seach.js";
+import Search from "./Search.js";
 import Track from "./Track.js";
 
 export default class Player extends AudioPlayer {
@@ -125,7 +125,7 @@ export default class Player extends AudioPlayer {
     }
 
 	async search(query) {
-        const data = await Seach.query(query);
+        const data = await Search.query(query);
         if (data instanceof Playlist) {
             for (const track of data.entries) {
                 this.queue.add(track);

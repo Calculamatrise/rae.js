@@ -1,5 +1,5 @@
 export default {
-    async execute(interaction, options) {
+    execute(interaction, options) {
         return interaction.channel.bulkDelete(options.getInteger("messages")).then(function(response) {
             return {
                 content: "Successfully cleared " + response.size + " messages.",
@@ -28,7 +28,6 @@ export default {
         });
     },
     data: {
-        name: "clear",
         description: "Purge command. Bulk delete messages.",
         default_member_permissions: 1 << 13,
         dm_permission: false,
