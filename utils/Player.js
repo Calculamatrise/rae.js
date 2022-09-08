@@ -14,15 +14,20 @@ export default class Player extends AudioPlayer {
             }
         });
 
+        this.once(AudioPlayerStatus.Playing, () => {
+            let song = this.currentTrack;
+            if (this.interaction !== null && song) {
+                this.interaction.editReply({
+                    content: `**Now playing**\n[${song.name}](<${song.url}>)`
+                }).catch(console.error);
+            }
+        });
+
         this.on(AudioPlayerStatus.Idle, async () => {
+            this.currentTrack.playing = false;
             this.unshift && (this.unshift = false, true) || this.queue.shift();
             if (this.currentTrack !== null) {
-                let song = await this.play(this.currentTrack);
-                if (this.interaction !== null && song) {
-                    this.interaction.editReply({
-                        content: `**Now playing**\n[${song.name}](<${song.url}>)`
-                    }).catch(console.error);
-                }
+                this.play(this.currentTrack);
             }
         });
 
@@ -138,7 +143,7 @@ export default class Player extends AudioPlayer {
 	}
 
     async play(song) {
-        if (!(song instanceof Track)) {
+        if (song !== void 0 && !(song instanceof Track)) {
             let search = await this.search(song);
             search instanceof Array ? this.queue.add(...search) : this.queue.add(search);
             song = this.queue.at(-1);

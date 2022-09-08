@@ -24,7 +24,9 @@ export default class {
 
     get engine() {
         if (this.#engine === null) {
-            this.#engine = new URL(this.url).hostname.split(".").at(-2);
+            try {
+                this.#engine = new URL(this.url).hostname.split(".").at(-2);
+            } catch {}
         }
 
         return this.#engine;
@@ -81,7 +83,7 @@ export default class {
     }
 
     async createAudioResource() {
-        if (this.#stream === null) {
+        if (this.#stream === null || true) {
             switch(this.engine) {
                 case 'spotify': {
                     this.#stream = await spdl(this.url, {

@@ -20,7 +20,7 @@ export default class {
      * @returns {(Playlist|Track)}
      */
     static async query(query, options = {}) {
-        if (spdl.validateURL(query) || ytdl.validateURL(query)) {
+        if (query.length > 0 && (spdl.validateURL(query) || ytdl.validateURL(query))) {
             return this.video(query);
         }
 

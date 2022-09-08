@@ -33,7 +33,7 @@ export default {
 
         return player.play(file || options.getString("song")).then(function(song) {
             return {
-                content: `**${song.playing ? "Now playing" : "Track Queued - Position " + player.queue.size}**\n[${song.name?.replace(/([-_|`*])/g, '\\$1')}](<${song.url}>)`,
+                content: `**${song.playing ? "Waiting to play" : "Track Queued - Position " + player.queue.size}**\n[${song.name?.replace(/([-_|`*])/g, '\\$1')}](<${song.url}>)`,
                 components: [{
                     type: 1,
                     components: [{

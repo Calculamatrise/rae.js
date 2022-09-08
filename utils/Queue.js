@@ -22,16 +22,25 @@ export default class extends Set {
     }
 
     clear() {
-        return this.recentlyPlayed.clear(),
-        super.clear(...arguments);
+        this.recentlyPlayed.clear();
+        return super.clear(...arguments);
     }
 
     shift() {
         let { value } = this.values().next();
-        return this.freeze || this.delete(value) && (this.cycle && this.add(value),
-        this.recentlyPlayed.size > 5 && this.recentlyPlayed.delete(this.recentlyPlayed.values().next().value),
-        this.recentlyPlayed.add(value)),
-        value;
+        if (!this.freeze && this.delete(value)) {
+            if (this.cycle) {
+                this.add(value);
+            }
+
+            if (this.recentlyPlayed.size > 5) {
+                this.recentlyPlayed.delete(this.recentlyPlayed.values().next().value);
+            }
+
+            this.recentlyPlayed.add(value);
+        }
+
+        return value;
     }
 
     unshift(item) {
