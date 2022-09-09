@@ -1,5 +1,4 @@
 import { createAudioResource, StreamType } from "@discordjs/voice";
-import spdl from "spdl-core";
 import ytdl from "ytdl-core";
 
 import fetch from "node-fetch";
@@ -9,12 +8,14 @@ import { createReadStream } from "fs";
 
 import http from "http";
 import https from "https";
+import Search from "./Search.js";
 
 export default class {
     #engine = null;
     #stream = null;
     #streamType = StreamType.Arbitrary;
 
+    artist = null;
     name = null;
     url = null;
     playing = false;
@@ -43,6 +44,19 @@ export default class {
     constructor(options = {}) {
         for (const key in options) {
             switch(key) {
+                case 'artists': {
+                    if (options[key] instanceof Array) {
+                        for (const artist of options[key]) {
+                            if (typeof artist == 'object' && artist.type == 'artist') {
+                                this.artist = artist.name;
+                                console.log(this)
+                                break;
+                            }
+                        }
+                    }
+                    break;
+                }
+
                 case 'name':
                 case 'title': {
                     this.name = options[key];
@@ -77,6 +91,7 @@ export default class {
                     if (typeof options[key] == 'object') {
                         return new this.constructor(options[key]);
                     }
+                    break;
                 }
             }
         }
@@ -86,13 +101,14 @@ export default class {
         if (this.#stream === null || true) {
             switch(this.engine) {
                 case 'spotify': {
-                    this.#stream = await spdl(this.url, {
-                        seek: this.options.seek / 1000,
+                    const video = await Search.video(this.name + ' by ' + this.artist);
+                    this.#stream = ytdl(video.url, {
+                        begin: this.options.seek,
                         filter: "audioonly",
                         highWaterMark: 1 << 25,
                         quality: "highestaudio"
                     });
-                    this.#streamType = StreamType.Raw;
+                    this.#streamType = StreamType.Arbitrary;
                     break;
                 }
 

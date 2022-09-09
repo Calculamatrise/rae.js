@@ -14,7 +14,7 @@ export default class Player extends AudioPlayer {
             }
         });
 
-        this.once(AudioPlayerStatus.Playing, () => {
+        this.on(AudioPlayerStatus.Playing, () => {
             let song = this.currentTrack;
             if (this.interaction !== null && song) {
                 this.interaction.editReply({
@@ -188,3 +188,4 @@ BaseGuildVoiceChannel.prototype.join = function(deaf = true) {
 }
 
 process.env['YTDL_NO_UPDATE'] = true;
+process.env['SPDL_NO_UPDATE'] = true;

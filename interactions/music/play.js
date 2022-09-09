@@ -61,7 +61,7 @@ export default {
                 }]
             }
         }).catch(function(error) {
-            console.error("PlayInteraction:", error.message);
+            console.error("PlayInteraction:", error);
             return {
                 content: error.message,
                 ephemeral: true
@@ -94,14 +94,14 @@ export default {
             if (data instanceof Array) {
                 return data.map(function({ name, url }) {
                     return {
-                        name: name,
+                        name,
                         value: url || name
                     }
                 });
             } else if ('entries' in data) {
-                return data.entries.map(function({ name, url }) {
+                return data.entries.slice(0, 25).map(function({ name, url }) {
                     return {
-                        name: name,
+                        name,
                         value: url || name
                     }
                 });

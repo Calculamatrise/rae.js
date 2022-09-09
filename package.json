@@ -14,7 +14,7 @@
 		"opusscript": "^0.0.8",
 		"paster.js": "^1.0.0",
 		"spdl-core": "^2.0.2",
-		"spotify-url-info": "^3.1.4",
+		"spotify-url-info": "^3.1.7",
 		"utf-8-validate": "^5.0.9",
 		"ytdl-core": "4.10.0",
 		"ytpl": "^2.3.0",
@@ -25,7 +25,7 @@
 		"start": "node ."
 	},
 	"engines": {
-		"node": "v18.7.0",
+		"node": "v16.14.2",
 		"npm": "*"
 	},
 	"author": "Calculus",
