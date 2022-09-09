@@ -43,7 +43,7 @@ export default class {
 
     static async video(query, { limit = 1 } = {}) {
         if (spdl.validateURL(query)) {
-            return new Track(await spdl.getInfo(query));
+            return new Track(await getData(query));
         } else if (ytdl.validateURL(query)) {
             return new Track(await ytdl.getBasicInfo(query).then(({ videoDetails }) => videoDetails));
         }
