@@ -1,4 +1,4 @@
-import { readdir } from "fs";
+import { readdir, readFile } from "fs";
 import { extname, parse } from "path";
 import { Client } from "discord.js";
 
@@ -15,7 +15,7 @@ export default class extends Client {
     chatbridge = new ChatbridgeHandler(this);
     database = new DatabaseHandler();
     deafs = new Temp();
-    developerMode = false;
+    developerMode = /^(dev|test)$/gi.test(process.argv.at(2));
     interactions = new InteractionHandler();
     players = new Map();
     snipes = new SnipeHandler();
@@ -73,6 +73,29 @@ export default class extends Client {
         });
     }
 
+    config() {
+        return new Promise((resolve, reject) => {
+            readFile(".env", (err, data) => {
+                if (err !== null) {
+                    reject(err);
+                }
+
+                const content = data.toString();
+                if (content.length > 0) {
+                    for (const match of content.split('\n')) {
+                        match.replace(/\b(?<=")[^"]*/, value => {
+                            match.replace(/^[^=\s]*/gm, key => {
+                                process.env[key] = value;
+                            });
+                        });
+                    }
+                }
+
+                resolve();
+            });
+        });
+    }
+
     async login() {
         await this.#import("./events", events => {
             events.forEach((event, name) => {
@@ -96,6 +119,12 @@ export default class extends Client {
             });
         });
 
+        if (this.developerMode) {
+            await this.config();
+            arguments[0] = process.env.DEV_TOKEN;
+        }
+
+        this.database.connect(process.env.DATABASE_KEY);
         return super.login(...arguments);
     }
 

@@ -27,8 +27,4 @@ export const client = new Client({
     ]
 });
 
-client.developerMode = /^(dev|test)$/gi.test(process.argv.at(2));
-client.developerMode && await import("./config.js").catch(() => null);
-client.database.connect(process.env.DATABASE_KEY);
-
-client.login([process.env.TOKEN, process.env.DEV_TOKEN][+client.developerMode]);
+client.login(process.env.TOKEN);
