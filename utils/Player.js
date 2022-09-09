@@ -24,7 +24,7 @@ export default class Player extends AudioPlayer {
         });
 
         this.on(AudioPlayerStatus.Idle, async () => {
-            this.currentTrack.playing = false;
+            this.currentTrack && (this.currentTrack.playing = false);
             this.unshift && (this.unshift = false, true) || this.queue.shift();
             if (this.currentTrack !== null) {
                 this.play(this.currentTrack);
