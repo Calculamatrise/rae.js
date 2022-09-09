@@ -29,9 +29,5 @@ export const client = new Client({
 
 client.login(process.env.TOKEN);
 
-// possibly necessary deps
-// opusscript
-// ffmpeg-static
-
 // clear cache on glitch
 // rm -rf .cache

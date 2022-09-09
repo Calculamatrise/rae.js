@@ -3,7 +3,6 @@ import spoof from "spotify-url-info";
 
 const { getData, getTracks } = spoof(fetch);
 
-import spdl from "spdl-core";
 import ytdl from "ytdl-core";
 import ytpl from "ytpl";
 import ytsr from "ytsr";
@@ -12,6 +11,25 @@ import Playlist from "./Playlist.js";
 import Track from "./Track.js";
 
 export default class {
+    static expressions = {
+        spotify: {
+            album: /^(https?:\/\/)?(?:open|play)\.spotify\.com\/album\/[\w\d]+$/i,
+            playlist: /^(https?:\/\/)?(?:open|play)\.spotify\.com\/playlist\/[\w\d]+$/i,
+            track: /^(https?:\/\/)?(?:open|play)\.spotify\.com\/track\/[\w\d]+$/i,
+        },
+        youtube: {
+            playlist: /^(https?:\/\/)?((www|m|music)\.)?youtu\.?be(\.com)?\/playlist\?list=[^&]*/i
+        }
+    }
+
+    static validateSpotifyURL(url, type = 'track') {
+        if (this.expressions.spotify[type] instanceof RegExp) {
+            return this.expressions.spotify[type].test(url.replace(/\?.*/, ''));
+        }
+
+        return false;
+    }
+
     /**
      * Search for a song or playlist
      * @param {String} query
@@ -20,7 +38,7 @@ export default class {
      * @returns {(Playlist|Track)}
      */
     static async query(query, options = {}) {
-        if (query.length > 0 && (spdl.validateURL(query) || ytdl.validateURL(query))) {
+        if (query.length > 0 && (this.validateSpotifyURL(query) || ytdl.validateURL(query))) {
             return this.video(query);
         }
 
@@ -34,7 +52,7 @@ export default class {
     }
 
     static async playlist(query) {
-        if (/(https?:\/\/)?((www|m|music)\.)?youtu\.?be(\.com)?\/playlist\?list=[^&]*/i.test(query)) {
+        if (this.expressions.youtube.playlist.test(query)) {
             return new Playlist(await ytpl(query));
         }
 
@@ -42,7 +60,7 @@ export default class {
     }
 
     static async video(query, { limit = 1 } = {}) {
-        if (spdl.validateURL(query)) {
+        if (this.validateSpotifyURL(query)) {
             return new Track(await getData(query));
         } else if (ytdl.validateURL(query)) {
             return new Track(await ytdl.getBasicInfo(query).then(({ videoDetails }) => videoDetails));

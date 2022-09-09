@@ -49,7 +49,6 @@ export default class {
                         for (const artist of options[key]) {
                             if (typeof artist == 'object' && (artist.type == 'artist' || options[key].length == 1)) {
                                 this.artist = artist.name;
-                                console.log(this)
                                 break;
                             }
                         }
