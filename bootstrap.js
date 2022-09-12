@@ -31,3 +31,15 @@ client.login(process.env.TOKEN);
 
 // clear cache on glitch
 // rm -rf .cache
+
+import Heart from "./heartbeat.js";
+
+const heart = new Heart({
+    rate: 6e4
+});
+
+heart.on("pulse", function(beats) {
+    console.log("Heartbeat", beats);
+});
+
+heart.listen();

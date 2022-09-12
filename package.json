@@ -8,6 +8,7 @@
 		"discord.js": "^14.3.0",
 		"libsodium-wrappers": "^0.7.10",
 		"mongoose": "^6.6.0",
+		"node-fetch": "^3.2.10",
 		"paster.js": "^1.0.0",
 		"spotify-url-info": "^3.1.7",
 		"ytdl-core": "4.10.0",

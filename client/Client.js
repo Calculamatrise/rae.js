@@ -83,11 +83,10 @@ export default class extends Client {
                 const content = data.toString();
                 if (content.length > 0) {
                     for (const match of content.split('\n')) {
-                        match.replace(/\b(?<=")[^"]*/, value => {
-                            match.replace(/^[^=\s]*/gm, key => {
-                                process.env[key] = value;
-                            });
-                        });
+                        const [ key, value ] = match.split(/[\s=]/, 2);
+                        if (key && value) {
+                            process.env[key] = value;
+                        }
                     }
                 }
 

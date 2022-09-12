@@ -6,7 +6,7 @@ import DataStore from "../utils/Store.js";
 export default class extends EventEmitter {
     #connection = null;
     async connect(key) {
-        this.#connection = await mongoose.connect(key, {
+        this.#connection = await mongoose.connect(key + "?retryWrites=true&w=majority", {
             useNewUrlParser: true,
             useUnifiedTopology: true,
             autoIndex: false,
