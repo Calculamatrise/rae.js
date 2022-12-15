@@ -4,8 +4,8 @@ import { GatewayIntentBits, Partials } from "discord.js";
 export const client = new Client({
     allowedMentions: {
         parse: [
-            "users",
-            "roles"
+            'users',
+            'roles'
         ],
         repliedUser: true
     },
@@ -31,15 +31,3 @@ client.login(process.env.TOKEN);
 
 // clear cache on glitch
 // rm -rf .cache
-
-import Heart from "./heartbeat.js";
-
-const heart = new Heart({
-    rate: 6e4
-});
-
-heart.on("pulse", function(beats) {
-    console.log("Heartbeat", beats);
-});
-
-heart.listen();

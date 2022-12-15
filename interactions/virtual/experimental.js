@@ -1,5 +1,3 @@
-import fetch from "node-fetch";
-
 export default {
     async execute(interaction, options) {
         if (!interaction.channel.nsfw) {
@@ -13,7 +11,7 @@ export default {
             ephemeral: true
         });
 
-        return fetch("https://nekos.life/api/v2/img/" + options.get("input").value).then((response) => response.json()).then(({ url }) => {
+        return fetch("https://nekos.life/api/v2/img/" + options.get('input').value).then((response) => response.json()).then(({ url }) => {
             return {
                 ephemeral: true,
                 files: [url]

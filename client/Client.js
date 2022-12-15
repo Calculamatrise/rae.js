@@ -25,7 +25,7 @@ export default class extends Client {
         this.database.createStore(Guild);
         this.database.createStore(Member);
         this.database.createStore(User);
-        this.database.on("connected", () => {
+        this.database.on('connected', () => {
             this.database.users.get().then((users) => {
                 users.forEach(async ({ id, chatbridge }) => {
                     this.chatbridge.users.set(id, {
@@ -36,11 +36,11 @@ export default class extends Client {
             });
         });
 
-        this.database.on("error", function(error) {
+        this.database.on('error', function(error) {
             console.error("Database:", error.message);
         });
 
-        this.database.on("disconnected", () => {
+        this.database.on('disconnected', () => {
             console.warn("I've lost connection to the database!");
         });
 	}
@@ -54,7 +54,7 @@ export default class extends Client {
                     if (extname(event)) {
                         result.push(await import(`.${directory}/${event}`).then(function(data) {
                             return [
-                                directory.split("/").slice(2).concat(/^index\.js$/.test(event) ? '' : event.replace(extname(event), '')).map((event, index) => index > 0 ? event.replace(/^./, m => m.toUpperCase()) : event).join(""),
+                                directory.split('/').slice(2).concat(/^index\.js$/.test(event) ? '' : event.replace(extname(event), '')).map((event, index) => index > 0 ? event.replace(/^./, m => m.toUpperCase()) : event).join(""),
                                 data
                             ]
                         }));
@@ -75,7 +75,7 @@ export default class extends Client {
 
     config() {
         return new Promise((resolve, reject) => {
-            readFile(".env", (err, data) => {
+            readFile('.env', (err, data) => {
                 if (err !== null) {
                     reject(err);
                 }
@@ -129,10 +129,10 @@ export default class extends Client {
 
     setIdle(status = true) {
         if (!status) {
-            setTimeout(() => this.user.setStatus("idle"), 6e4);
+            setTimeout(() => this.user.setStatus('idle'), 6e4);
         }
 
-        return this.user.setStatus(status ? "idle" : "online");
+        return this.user.setStatus(status ? 'idle' : 'online');
     }
 
     deployCommands() {

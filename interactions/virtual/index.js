@@ -2,6 +2,7 @@ export default {
     data: {
         description: "Interact virtually with other users!",
         dm_permission: false,
+        nsfw: true,
         options: [{
             name: "experimental",
             description: "Test gif categories.",

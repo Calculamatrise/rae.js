@@ -8,7 +8,7 @@ export default async function(interaction) {
     }
 
     let args = interaction.options?.data || [];
-    if (interaction.isButton() || interaction.isSelectMenu()) {
+    if (interaction.isButton() || interaction.isStringSelectMenu()) {
         [ command, ...args ] = interaction.customId.split('-');
         subcommand = command.split(/(?=[A-Z])/).slice(1).at(-1);
         if (subcommand) {
@@ -16,7 +16,7 @@ export default async function(interaction) {
         }
 
         args = args.map(t => ({ value: t })) || [];
-        if (interaction.isSelectMenu()) {
+        if (interaction.isStringSelectMenu()) {
             interaction.values.forEach(item => args.push({ value: item.value ?? item }));
         }
     }
@@ -35,35 +35,27 @@ export default async function(interaction) {
             });
         }
 
-
-        if (interaction.isButton() || interaction.isSelectMenu()) {
-            let parent = this.interactions.get(command.replace(/[A-Z].*/g, ""));
+        let data;
+        if (interaction.isButton() || interaction.isStringSelectMenu()) {
+            let parent = this.interactions.get(command.replace(/[A-Z].*/g, ''));
             let options = event.data?.options || parent.data?.options?.find(option => option.name == subcommand)?.options;
             if (options) interaction.options = new CommandInteractionOptionResolver(interaction.client, args.map((argument, index) => Object.assign(options[index], argument)));
-            let data = await event[interaction.isSelectMenu() ? "select" : "click"](interaction, interaction.options, args);
-            if (!data) {
-                if (!interaction.deferred && !interaction.replied) {
-                    await interaction.deferUpdate();
-                }
-            } else {
-                await interaction[interaction.deferred ? "followUp" : interaction.replied ? "editReply" : "reply"](data).catch(function({ message }) {
+            if (data = await event[interaction.isStringSelectMenu() ? 'select' : 'click'](interaction, interaction.options, args)) {
+                await interaction[interaction.deferred ? 'followUp' : interaction.replied ? 'editReply' : 'reply'](data).catch(function({ message }) {
                     console.error("InteractionCreate:", message);
                 });
+            } else if (!interaction.deferred && !interaction.replied) {
+                await interaction.deferUpdate();
             }
-        } else {
-            let data = await this.interactions.emit(command, interaction, interaction.options, args);
-            if (!data) {
-                if (!interaction.replied) {
-                    interaction[(interaction.deferred ? "editR" : "r") + "eply"]({
-                        content: "Something went wrong. Please try again!",
-                        ephemeral: true
-                    });
-                }
-            } else {
-                await interaction[interaction.deferred ? "editReply" : interaction.replied ? "followUp" : "reply"](data).catch(function({ message }) {
-                    console.error("InteractionCreate:", message);
-                });
-            }
+        } else if (data = await this.interactions.emit(command, interaction, interaction.options, args)) {
+            await interaction[interaction.deferred ? 'editReply' : interaction.replied ? 'followUp' : 'reply'](data).catch(function({ message }) {
+                console.error("InteractionCreate:", message);
+            });
+        } else if (!interaction.replied) {
+            interaction[(interaction.deferred ? 'editR' : 'r') + 'eply']({
+                content: "Something went wrong. Please try again!",
+                ephemeral: true
+            });
         }
 
         this.setIdle(false);

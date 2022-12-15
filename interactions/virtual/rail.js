@@ -1,5 +1,3 @@
-import fetch from "node-fetch";
-
 import { red } from "../../colors.js";
 
 export default {
@@ -11,7 +9,7 @@ export default {
             }
         }
 
-        if (interaction.user.id == options.get("user").value) {
+        if (interaction.user.id == options.get('user').value) {
             return {
                 content: "You cannot rail yourself.",
                 ephemeral: true
@@ -20,7 +18,7 @@ export default {
 
         await interaction.deferReply();
 
-        let emojis = ["🥵", "😜", "😳"];
+        let emojis = ['🥵', '😜', '😳'];
         return fetch("https://nekos.life/api/v2/img/nsfw_neko_gif").then((response) => response.json()).then((image) => {
             return {
                 embeds: [{
@@ -36,5 +34,8 @@ export default {
                 ephemeral: true
             }
         });
+    },
+    data: {
+        nsfw: true
     }
 }

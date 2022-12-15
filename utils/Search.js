@@ -1,4 +1,3 @@
-import fetch from "node-fetch";
 import spoof from "spotify-url-info";
 
 const { getData, getTracks } = spoof(fetch);

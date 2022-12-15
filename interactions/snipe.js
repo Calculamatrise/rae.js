@@ -47,37 +47,39 @@ export default {
     },
     data: {
         description: "Snipe a recently edited or deleted message.",
+        dm_permission: false,
         options: [{
-            name: "type",
+            name: 'type',
             description: "Type of snipe; eg. edit, reaction etc.",
             type: 3,
             required: false,
             choices: [{
-                name: "message",
-                value: "message"
+                name: 'message',
+                value: 'message'
             }, {
-                name: "edit",
-                value: "edit"
+                name: 'edit',
+                value: 'edit'
             }, {
-                name: "reaction",
-                value: "reaction"
+                name: 'reaction',
+                value: 'reaction'
             }]
         }, {
-            name: "channel",
+            name: 'channel',
             description: "Channel from which you're sniping.",
             type: 7,
             required: false,
-            channel_types: [ 0, 1, 2, 3, 5, 10, 11, 12 ]
+            channel_types: [0, 1, 2, 3, 5, 10, 11, 12]
         }, {
-            name: "user",
+            name: 'user',
             description: "Snipe deleted content from a specified user.",
             type: 6,
             required: false
         }]
     },
     menus: {
+        dm_permission: false,
         message: {
-            name: "snipe",
+            name: 'snipe',
             type: 3
         }
     }

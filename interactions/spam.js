@@ -31,20 +31,21 @@ export default {
         description: "Spam another member.",
         default_member_permissions: 0,
         options: [{
-            name: "user",
+            name: 'user',
             description: "Pick a member to spam.",
             type: 6,
             required: true
         },{
-            name: "message",
+            name: 'message',
             description: "Write a friendly note for the user you're about to spam.",
             type: 3,
             required: false
         }]
     },
     menus: {
+        dm_permission: false,
         user: {
-            name: "spam",
+            name: 'spam',
             default_member_permissions: 0,
             type: 2
         }

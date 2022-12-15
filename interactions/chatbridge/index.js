@@ -2,6 +2,7 @@ export default {
     data: {
         description: "Communicate to other users Discord wide via DMs.",
         // default_member_permissions: 0,
+        dm_permission: true,
         options: [{
             name: "opt-in",
             description: "Communicate to other users Discord wide via DMs.",

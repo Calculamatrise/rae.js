@@ -1,8 +1,6 @@
 import { createAudioResource, StreamType } from "@discordjs/voice";
 import ytdl from "ytdl-core";
 
-import fetch from "node-fetch";
-
 import { Readable } from "stream";
 import { createReadStream } from "fs";
 
@@ -14,7 +12,6 @@ export default class {
     #engine = null;
     #stream = null;
     #streamType = StreamType.Arbitrary;
-
     artist = null;
     name = null;
     url = null;
