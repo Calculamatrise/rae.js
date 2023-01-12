@@ -19,7 +19,7 @@ export const client = new Client({
         GatewayIntentBits.GuildPresences,
         GatewayIntentBits.GuildVoiceStates,
         GatewayIntentBits.GuildWebhooks,
-        // GatewayIntentBits.MessageContent,
+        GatewayIntentBits.MessageContent,
     ],
     partials: [
         Partials.Channel, // Required to receive DMs

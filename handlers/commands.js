@@ -63,7 +63,6 @@ export default class {
         metadata.description = data.description ?? metadata.description;
         metadata.options = data.options ?? metadata.options;
         metadata.whitelist = data.whitelist ?? metadata.whitelist;
-
         if (!this.#events.has(event)) {
             this.#events.set(event, new Set());
         }

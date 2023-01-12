@@ -35,7 +35,5 @@ export default {
             }
         });
     },
-    data: {
-        nsfw: true
-    }
+    nsfw: true
 }

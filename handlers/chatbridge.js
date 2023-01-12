@@ -2,24 +2,20 @@ import EventEmitter from "events";
 
 export default class extends EventEmitter {
     #client = null;
-
     messages = new Map();
     users = new Map();
-
     constructor(client) {
         super();
-
         this.#client = client;
-
-        this.on("message", this.onmessage);
-        this.on("messageUpdate", this.onmessageupdate);
-        this.on("messageDelete", this.onmessagedelete);
+        this.on('message', this.onmessage);
+        this.on('messageUpdate', this.onmessageupdate);
+        this.on('messageDelete', this.onmessagedelete);
     }
 
     async mask(message) {
         let author = this.users.get(message.author.id);
         let referenceMessage = message.reference && (message.channel.messages.cache.get(message.reference.messageId) || await message.channel.messages.fetch(message.reference.messageId).catch(function(error) {
-            console.error("ChatBridge", error.message);
+            console.error('ChatBridge', error.message);
         }));
         if (referenceMessage && (referenceMessage.content.length > 0 || referenceMessage.embeds[0]?.description.length > 0)) {
             referenceMessage = `> ${referenceMessage.content || referenceMessage.embeds[0].description.replace(/^>.*\n/gi, "")}\n${message.content}`;
@@ -75,7 +71,7 @@ export default class extends EventEmitter {
 
             this.messages.get(message.id).messages.push(...messages);
         }).catch(function(error) {
-            console.error("ChatBridge:", error.message);
+            console.error('ChatBridge:', error.message);
         });
     }
 

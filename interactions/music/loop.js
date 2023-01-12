@@ -45,8 +45,5 @@ export default {
             content: "Nothing is playing.",
             ephemeral: true
         }
-    },
-    click() {
-        this.execute(...arguments);
     }
 }

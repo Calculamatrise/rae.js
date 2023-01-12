@@ -3,6 +3,8 @@ import { CommandInteractionOptionResolver } from "discord.js";
 import { discord } from "../colors.js";
 
 export default {
+    description: "Snipe a recently edited or deleted message.",
+    dm_permission: false,
     async execute(interaction, options) {
         if (interaction.isMessageContextMenuCommand()) {
             options = new CommandInteractionOptionResolver(interaction.client, [{
@@ -16,14 +18,14 @@ export default {
             }]);
         }
 
-        const type = options.getString("type") || "message";
-        const channel = options.getChannel("channel") || interaction.channel;
-        const snipe = interaction.client.snipes.get(type, channel.id, options.getUser("user"));
+        const type = options.getString('type') || 'message';
+        const channel = options.getChannel('channel') || interaction.channel;
+        const snipe = interaction.client.snipes.get(type, channel.id, options.getUser('user'));
         if (snipe) {
             return {
                 embeds: [{
                     color: discord,
-                    description: (snipe.message.content + (snipe.message.attachments?.first()?.contentType == "video/mp4" ? snipe.message.attachments?.first()?.url : "")) || "*This feature is currently unavailable.*",
+                    description: (snipe.message.content + (snipe.message.attachments?.first()?.contentType == 'video/mp4' ? snipe.message.attachments?.first()?.url : '')) || "*This feature is currently unavailable.*",
                     author: {
                         name: snipe.message.author.tag,
                         iconURL: snipe.message.author.displayAvatarURL()
@@ -45,42 +47,38 @@ export default {
             ephemeral: true
         }
     },
-    data: {
-        description: "Snipe a recently edited or deleted message.",
-        dm_permission: false,
-        options: [{
-            name: 'type',
-            description: "Type of snipe; eg. edit, reaction etc.",
-            type: 3,
-            required: false,
-            choices: [{
-                name: 'message',
-                value: 'message'
-            }, {
-                name: 'edit',
-                value: 'edit'
-            }, {
-                name: 'reaction',
-                value: 'reaction'
-            }]
-        }, {
-            name: 'channel',
-            description: "Channel from which you're sniping.",
-            type: 7,
-            required: false,
-            channel_types: [0, 1, 2, 3, 5, 10, 11, 12]
-        }, {
-            name: 'user',
-            description: "Snipe deleted content from a specified user.",
-            type: 6,
-            required: false
-        }]
-    },
     menus: {
         dm_permission: false,
         message: {
             name: 'snipe',
             type: 3
         }
-    }
+    },
+    options: [{
+        name: 'type',
+        description: "Type of snipe; eg. edit, reaction etc.",
+        type: 3,
+        required: false,
+        choices: [{
+            name: 'message',
+            value: 'message'
+        }, {
+            name: 'edit',
+            value: 'edit'
+        }, {
+            name: 'reaction',
+            value: 'reaction'
+        }]
+    }, {
+        name: 'channel',
+        description: "Channel from which you're sniping.",
+        type: 7,
+        required: false,
+        channel_types: [0, 1, 2, 3, 5, 10, 11, 12]
+    }, {
+        name: 'user',
+        description: "Snipe deleted content from a specified user.",
+        type: 6,
+        required: false
+    }]
 }

@@ -47,8 +47,5 @@ export default {
             content: "Music is already playing!",
             ephemeral: true
         }
-    },
-    click() {
-        this.execute(...arguments);
     }
 }

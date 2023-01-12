@@ -1,6 +1,6 @@
 export default {
     async execute(interaction, options) {
-        let input = options.get("message");
+        let input = options.get('message');
         let message = input.message || interaction.channel.messages.cache.get(input.value) || await interaction.channel.messages.fetch(input.value);
         return {
             embeds: [{
@@ -20,7 +20,7 @@ export default {
     },
     menus: {
         user: {
-            name: "overview",
+            name: 'overview',
             type: 3
         }
     }

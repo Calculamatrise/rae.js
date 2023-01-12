@@ -9,7 +9,7 @@ export default async function(interaction) {
 
     let args = interaction.options?.data || [];
     if (interaction.isButton() || interaction.isStringSelectMenu()) {
-        [ command, ...args ] = interaction.customId.split('-');
+        [command, ...args] = interaction.customId.split('-');
         subcommand = command.split(/(?=[A-Z])/).slice(1).at(-1);
         if (subcommand) {
             subcommand = subcommand.toLowerCase();
@@ -40,7 +40,9 @@ export default async function(interaction) {
             let parent = this.interactions.get(command.replace(/[A-Z].*/g, ''));
             let options = event.data?.options || parent.data?.options?.find(option => option.name == subcommand)?.options;
             if (options) interaction.options = new CommandInteractionOptionResolver(interaction.client, args.map((argument, index) => Object.assign(options[index], argument)));
-            if (data = await event[interaction.isStringSelectMenu() ? 'select' : 'click'](interaction, interaction.options, args)) {
+            let method = interaction.isStringSelectMenu() ? 'select' : 'click';
+            if (!event.hasOwnProperty(method)) method = 'execute';
+            if (method != 'execute' && (data = await event[method](interaction, interaction.options, args))) {
                 await interaction[interaction.deferred ? 'followUp' : interaction.replied ? 'editReply' : 'reply'](data).catch(function({ message }) {
                     console.error("InteractionCreate:", message);
                 });

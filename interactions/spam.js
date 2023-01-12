@@ -1,4 +1,6 @@
 export default {
+    description: "Spam another member.",
+    default_member_permissions: 0,
     async execute(interaction, options) {
         interaction.deferReply({
             ephemeral: true
@@ -27,21 +29,6 @@ export default {
             }
         });
     },
-    data: {
-        description: "Spam another member.",
-        default_member_permissions: 0,
-        options: [{
-            name: 'user',
-            description: "Pick a member to spam.",
-            type: 6,
-            required: true
-        },{
-            name: 'message',
-            description: "Write a friendly note for the user you're about to spam.",
-            type: 3,
-            required: false
-        }]
-    },
     menus: {
         dm_permission: false,
         user: {
@@ -50,9 +37,20 @@ export default {
             type: 2
         }
     },
+    options: [{
+        name: 'user',
+        description: "Pick a member to spam.",
+        type: 6,
+        required: true
+    },{
+        name: 'message',
+        description: "Write a friendly note for the user you're about to spam.",
+        type: 3,
+        required: false
+    }],
+    response: "Oh no! You can't use this command. It was made just for Gabrielle <3",
     whitelist: new Set([
         "704794598303858728",
         "804019041131167745"
-    ]),
-    response: "Oh no! You can't use this command. It was made just for Gabrielle <3"
+    ])
 }

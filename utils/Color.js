@@ -11,45 +11,35 @@ export default class Color {
     constructor(value) {
         if (typeof value == 'object') {
             if (value instanceof Array) {
-                this.red = ~~value[0] ?? 255;
-                this.green = ~~value[1] ?? 255;
-                this.blue = ~~value[2] ?? 255;
-                this.alpha = ~~(value[3] ?? 255);
+                return new this.constructor(...value);
             } else {
-                this.red = ~~(value.r ?? value.red) ?? 255;
-                this.green = ~~(value.g ?? value.green) ?? 255;
-                this.blue = ~~(value.b ?? value.blue) ?? 255;
-                this.alpha = ~~(value.a ?? value.alpha ?? 255);
+                return new this.constructor(value.r ?? value.red, value.g ?? value.green, value.b ?? value.blue, value.a ?? value.alpha);
             }
         } else if (typeof value == 'number') {
             if (arguments.length >= 3) {
-                this.red = ~~arguments[0] ?? 255;
-                this.green = ~~arguments[1] ?? 255;
-                this.blue = ~~arguments[2] ?? 255;
-                this.alpha = ~~(arguments[3] ?? 255);
+                this.red = Math.min(~~arguments[0], 255);
+                this.green = Math.min(~~arguments[1], 255);
+                this.blue = Math.min(~~arguments[2], 255);
+                this.alpha = Math.min(~~arguments[3], 255);
             } else {
                 if ((value & 0xFF000000) !== 0) {
-                    this.alpha = (value & 0xFF000000) >> 24;
+                    this.alpha = Math.min((value & 0xFF000000) >> 24, 255);
                 }
 
-                this.red = (value & 0xFF0000) >> 16;
-                this.green = (value & 0xFF00) >> 8;
-                this.blue = value & 0xFF;
+                this.red = Math.min((value & 0xFF0000) >> 16, 255);
+                this.green = Math.min((value & 0xFF00) >> 8, 255);
+                this.blue = Math.min(value & 0xFF, 255);
             }
         } else if (typeof value == 'string') {
             let arr = value.match(new RegExp(`[^#]{${1 + (value.length > 5)}}`, 'g'));
             if (arr !== null) {
-                let values = arr.map(hex => parseInt(hex.padStart(2, hex), 16));
-                this.red = ~~values[0] ?? 255;
-                this.green = ~~values[1] ?? 255;
-                this.blue = ~~values[2] ?? 255;
-                this.alpha = ~~(values[3] ?? 255);
+                return new this.constructor(...arr.map(hex => parseInt(hex.padStart(2, hex), 16)));
             }
         }
     }
 
     static from() {
-        return new Color(...arguments);
+        return new this(...arguments);
     }
 
     /**

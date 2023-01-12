@@ -6,6 +6,7 @@ import DataStore from "../utils/Store.js";
 export default class extends EventEmitter {
     #connection = null;
     async connect(key) {
+        mongoose.set('strictQuery', false);
         this.#connection = await mongoose.connect(key + "?retryWrites=true&w=majority", {
             useNewUrlParser: true,
             useUnifiedTopology: true,
@@ -16,9 +17,9 @@ export default class extends EventEmitter {
         });
 
         if (this.#connection) {
-            this.emit("connected", this.#connection);
-            mongoose.connection.on("disconnected", (error) => {
-                this.emit("disconnected", error);
+            this.emit('connected', this.#connection);
+            mongoose.connection.on('disconnected', (error) => {
+                this.emit('disconnected', error);
             });
 
             return this.#connection;

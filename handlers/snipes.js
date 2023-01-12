@@ -1,10 +1,11 @@
 export default class {
+    types = ['message', 'edit', 'reaction'];
     constructor() {
         for (const e of this.types) {
             this[e] = new Map();
         }
     }
-    types = ["message", "edit", "reaction"];
+
     get(type, id, user) {
         if (!this.types.includes(type)) {
             throw new TypeError(type + " is not a type.");
@@ -27,9 +28,7 @@ export default class {
     set(type, id, data) {
         if (!this.types.includes(type)) {
             throw new TypeError(type + " is not a type.");
-        }
-
-        if (!this[type].has(id)) {
+        } else if (!this[type].has(id)) {
             this[type].set(id, []);
         }
 

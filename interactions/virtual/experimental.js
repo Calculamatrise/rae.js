@@ -23,9 +23,9 @@ export default {
             }
         });
     },
+    response: "Oh no! You can't use this command. It's specifically designed for testing purposes.",
     whitelist: new Set([
         "307360544468238336",
         "430418106972897282"
-    ]),
-    response: "Oh no! You can't use this command. It's specifically designed for testing purposes."
+    ])
 }

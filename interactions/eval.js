@@ -7,6 +7,8 @@ import paste from "paster.js";
 import { client } from "../bootstrap.js";
 
 export default {
+    description: "Execute code on discord.",
+    default_member_permissions: 0,
     async execute(interaction, options, args) {
         const flags = new Set();
         const stdout = [];
@@ -90,16 +92,6 @@ export default {
             }
         }
     },
-    data: {
-        description: "Execute code on discord.",
-        default_member_permissions: 0,
-        options: [{
-            name: "input",
-            description: "Code you wish to execute",
-            type: 3,
-            required: true
-        }],
-    },
     menus: {
         message: {
             name: "eval",
@@ -107,9 +99,15 @@ export default {
             type: 3
         }
     },
+    options: [{
+        name: "input",
+        description: "Code you wish to execute",
+        type: 3,
+        required: true
+    }],
+    response: "Oh no! You can't use this command. It's specifically designed for testing purposes.",
     whitelist: new Set([
         "307360544468238336",
         "430418106972897282"
-    ]),
-    response: "Oh no! You can't use this command. It's specifically designed for testing purposes."
+    ])
 }

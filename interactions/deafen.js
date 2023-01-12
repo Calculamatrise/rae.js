@@ -1,8 +1,11 @@
 import Time from "../utils/Time.js";
 
 export default {
+    description: "Timed deafen.",
+    default_member_permissions: 1 << 23,
+    dm_permission: false,
     async execute(interaction, options) {
-        const member = options.getMember("user");
+        const member = options.getMember('user');
         if (!member) {
             return {
                 content: "The specified user does not exist.",
@@ -53,20 +56,15 @@ export default {
         user.member = interaction.guild.members.cache.get(user.value) || await interaction.guild.members.fetch(user.value);
         return this.execute(...arguments);
     },
-    data: {
-        description: "Timed deafen.",
-        default_member_permissions: 1 << 23,
-        dm_permission: false,
-        options: [{
-            name: "user",
-            description: "User to deafen.",
-            type: 6,
-            required: true
-        }, {
-            name: "time",
-            description: "Duration of deafen.",
-            type: 3,
-            required: true
-        }]
-    }
+    options: [{
+        name: "user",
+        description: "User to deafen.",
+        type: 6,
+        required: true
+    }, {
+        name: "time",
+        description: "Duration of deafen.",
+        type: 3,
+        required: true
+    }]
 }

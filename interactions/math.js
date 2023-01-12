@@ -1,4 +1,5 @@
 export default {
+    description: "Because you love math so much-",
     execute(interaction, options) {
         function factorial(n) {
             if (isNaN(n)) {
@@ -82,13 +83,10 @@ export default {
             ephemeral: true
         }
     },
-    data: {
-        description: "Because you love math so much-",
-        options: [{
-            name: "input",
-            description: "Enter your formula followed by n to execute the formula.",
-            required: true,
-            type: 3
-        }]
-    }
+    options: [{
+        name: "input",
+        description: "Enter your formula followed by n to execute the formula.",
+        required: true,
+        type: 3
+    }]
 }

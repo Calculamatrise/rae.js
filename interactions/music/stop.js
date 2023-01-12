@@ -19,8 +19,5 @@ export default {
             content: "Nothing is playing.",
             ephemeral: true
         }
-    },
-    click(interaction) {
-        return this.execute(interaction);
     }
 }

@@ -21,7 +21,6 @@ export default class extends Client {
     snipes = new SnipeHandler();
     constructor() {
 		super(...arguments);
-
         this.database.createStore(Guild);
         this.database.createStore(Member);
         this.database.createStore(User);
@@ -104,12 +103,13 @@ export default class extends Client {
 
         await this.#import("./interactions", events => {
             events.forEach((event, name) => {
-                if ('data' in event.default) {
-                    event.default.data.name = event.default.data.name ?? name.replace(/.*(?=[A-Z])/, '').toLowerCase();
+                if ('description' in event.default) {
+                    event.default.name = event.default.name ?? name.replace(/.*(?=[A-Z])/, '').toLowerCase();
                 }
 
                 if ('menus' in event.default) {
                     for (const menu in event.default.menus) {
+                        if (typeof event.default.menus[menu] != 'object') continue;
                         event.default.menus[menu].name = event.default.menus[menu].name ?? name.replace(/.*(?=[A-Z])/, '').toLowerCase();
                     }
                 }
@@ -137,11 +137,7 @@ export default class extends Client {
 
     deployCommands() {
         return new Promise(async resolve => {
-            let commands = this.application.commands;
-            if (this.developerMode) {
-                commands = this.guilds.cache.get("433783980345655306").commands;
-            }
-
+            const { commands } = (this.developerMode ? this.guilds.cache.get("433783980345655306") : this.application);
             const live = await commands.fetch();
             for (const command of live.values()) {
                 if (!this.interactions.has(command.name, command.type != 1)) {
@@ -149,11 +145,14 @@ export default class extends Client {
                 }
             }
 
-            for (const { data, menus: { message, user } = {}} of this.interactions.values()) {
-                // if (this.developerMode && data?.name != "avatar") continue;
-                data && await commands.create(data);
+            for (const data of this.interactions.values()) {
+                if (this.developerMode && data?.name != 'confess') continue;
+                const { message, user } = data.menus ?? {};
                 message && await commands.create(message);
                 user && await commands.create(user);
+                delete data.menus;
+                // data.hasOwnProperty('name') && console.log(data)
+                data.hasOwnProperty('name') && await commands.create(data);
             }
 
             resolve();

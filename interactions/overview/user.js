@@ -1,6 +1,6 @@
 export default {
     async execute(interaction, options) {
-        const { user, member } = options.get("user");
+        const { user, member } = options.get('user');
         let embed = {
             author: {
                 name: user.username,
@@ -60,7 +60,7 @@ export default {
     },
     menus: {
         user: {
-            name: "overview",
+            name: 'overview',
             type: 2
         }
     }
