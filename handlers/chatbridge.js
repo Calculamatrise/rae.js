@@ -1,4 +1,5 @@
 import EventEmitter from "events";
+import Color from "../utils/Color.js";
 
 export default class extends EventEmitter {
     #client = null;
@@ -18,7 +19,7 @@ export default class extends EventEmitter {
             console.error('ChatBridge', error.message);
         }));
         if (referenceMessage && (referenceMessage.content.length > 0 || referenceMessage.embeds[0]?.description.length > 0)) {
-            referenceMessage = `> ${referenceMessage.content || referenceMessage.embeds[0].description.replace(/^>.*\n/gi, "")}\n${message.content}`;
+            referenceMessage = `> ${referenceMessage.content || referenceMessage.embeds[0].description.replace(/^>.*\n/gi, '')}\n${message.content}`;
         } else {
             referenceMessage = false;
         }
@@ -28,7 +29,7 @@ export default class extends EventEmitter {
                 name: message.author.username,
                 iconURL: message.author.displayAvatarURL()
             },
-            color: author.color && parseInt(author.color.replace('#', ''), 16) || null,
+            color: author.color ? new Color(author.color).toDecimal() : null,
             description: referenceMessage || message.content,
             footer: {
                 text: message.author.tag,

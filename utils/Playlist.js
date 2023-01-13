@@ -5,7 +5,6 @@ export default class {
     name = null;
     url = null;
     entries = [];
-
     constructor(options = {}) {
         for (const key in options) {
             switch(key) {

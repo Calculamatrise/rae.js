@@ -13,4 +13,4 @@ const Schema = new mongoose.Schema({
     }
 });
 
-export default mongoose.model("Guild", Schema, "guilds");
+export default mongoose.model('Guild', Schema, 'guilds');

@@ -17,22 +17,22 @@ export default class {
         return target = new Proxy(target, { ...handler,
             get(object, property) {
                 let plain = JSON.parse(JSON.stringify(object));
-                if (typeof plain[property] == "object" && plain[property] !== null) {
+                if (typeof plain[property] == 'object' && plain[property] !== null) {
                     return new Proxy(object[property], this);
                 }
 
-                if (typeof handler.get == "function") {
+                if (typeof handler.get == 'function') {
                     return handler.get.apply(target, arguments);
                 }
 
-                return object[property];
+                return Reflect.get(...arguments);
             },
-            set(object, property, value) {
-                if (typeof handler.set == "function") {
+            set() {
+                if (typeof handler.set == 'function') {
                     return handler.set.apply(target, arguments);
                 }
 
-                return object[property] = value;
+                return Reflect.set(...arguments);
             }
         });
     }

@@ -33,7 +33,7 @@ export default {
                 break;
             }
 
-            let [emoji, role] = message.content.split(/\s+/);
+            let [emoji, role] = message.content.split(/\s+(.*)/);
             if (!emoji || !role) {
                 await interaction.followUp({
                     content: "Something went wrong. Please try again!",

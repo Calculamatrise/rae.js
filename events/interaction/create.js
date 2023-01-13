@@ -38,7 +38,7 @@ export default async function(interaction) {
         let data;
         if (interaction.isButton() || interaction.isStringSelectMenu()) {
             let parent = this.interactions.get(command.replace(/[A-Z].*/g, ''));
-            let options = event.data?.options || parent.data?.options?.find(option => option.name == subcommand)?.options;
+            let options = event?.options || parent?.options?.find(option => option.name == subcommand)?.options;
             if (options) interaction.options = new CommandInteractionOptionResolver(interaction.client, args.map((argument, index) => Object.assign(options[index], argument)));
             let method = interaction.isStringSelectMenu() ? 'select' : 'click';
             if (!event.hasOwnProperty(method)) method = 'execute';

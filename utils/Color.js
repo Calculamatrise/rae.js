@@ -31,10 +31,13 @@ export default class Color {
                 this.blue = Math.min(value & 0xFF, 255);
             }
         } else if (typeof value == 'string') {
-            let arr = value.match(new RegExp(`[^#]{${1 + (value.length > 5)}}`, 'g'));
-            if (arr !== null) {
-                return new this.constructor(...arr.map(hex => parseInt(hex.padStart(2, hex), 16)));
+            if (/^rgb/i.test(value)) {
+                value = value.replace(/^rgba?\((.*)\)$/i, '$1');
+                return new this.constructor(...value.split(/\s*,\s*/));
             }
+
+            value = value.match(new RegExp(`[^#]{${1 + (value.length > 5)}}`, 'g'));
+            return new this.constructor(...value.map(hex => parseInt(hex.padStart(2, hex), 16)));
         }
     }
 
@@ -56,7 +59,7 @@ export default class Color {
      * @returns {String}
      */
     toHex(alpha = true) {
-        return '#' + [ this.red, this.green, this.blue, this.alpha ].map(decimal => decimal.toString(16).padStart(2, '0')).join('').slice(0, alpha ? -2 : Infinity);
+        return '#' + [this.red, this.green, this.blue, this.alpha].map(decimal => decimal.toString(16).padStart(2, '0')).join('').slice(0, alpha ? -2 : Infinity);
     }
 
     /**

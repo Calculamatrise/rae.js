@@ -7,6 +7,19 @@ import Search from "./Search.js";
 import Track from "./Track.js";
 
 export default class Player extends AudioPlayer {
+    connection = null;
+    interaction = null;
+    queue = new Queue();
+    unshift = false;
+    volume = 100;
+    get currentTrack() {
+        return this.queue.at(0) || null;
+    }
+
+    get stopped() {
+        return this.state.status != 'playing';
+    }
+
     constructor() {
         super({
             behaviors: {
@@ -31,8 +44,8 @@ export default class Player extends AudioPlayer {
             }
         });
 
-		this.on("error", error => {
-            console.error("Player:", error.message);
+		this.on('error', error => {
+            console.error('Player:', error.message);
             if (this.interaction !== null) {
                 this.interaction.editReply({
                     content: `One of my libraries decided to be a pain in the ass: ${error.message}`,
@@ -40,18 +53,6 @@ export default class Player extends AudioPlayer {
                 }).catch(console.error);
             }
 		});
-    }
-    connection = null;
-    interaction = null;
-    queue = new Queue();
-    unshift = false;
-    volume = 100;
-    get currentTrack() {
-        return this.queue.at(0) || null;
-    }
-
-    get stopped() {
-        return this.state.status != "playing";
     }
 
     init(interaction) {

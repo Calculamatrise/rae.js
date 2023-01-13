@@ -13,7 +13,7 @@ export default class extends EventEmitter {
             autoIndex: false,
             connectTimeoutMS: 10000
         }).catch(error => {
-            this.emit("error", error);
+            this.emit('error', error);
         });
 
         if (this.#connection) {

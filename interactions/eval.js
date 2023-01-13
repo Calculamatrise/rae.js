@@ -12,26 +12,24 @@ export default {
     async execute(interaction, options, args) {
         const flags = new Set();
         const stdout = [];
-
-        let str = args.map(({ value }) => value).join(" ").replace(/--[^s]*$/g, function(match) {
+        let str = args.map(({ value }) => value).join(' ').replace(/--[^s]*$/g, function(match) {
             match.split(/\s+/g).forEach(function(flag) {
                 flags.add(flag);
             });
-            return "";
-        }).replace(/^`+(\w*)?(\s*)?|`+(\s*)?$/g, "");
-
+            return '';
+        }).replace(/^`+(\w*)?(\s*)?|`+(\s*)?$/g, '');
         try {
-            if (flags.has("exec")) {
+            if (flags.has('exec')) {
                 let result = execSync(str);
                 return {
                     embeds: [{
                         color: interaction.member?.roles.cache.first()?.color || null,
                         fields: [{
-                            name: "Result",
+                            name: 'Result',
                             value: `\`\`\`js\n${result.toString()}\`\`\``,
                             inline: false
                         }, {
-                            name: "Type",
+                            name: 'Type',
                             value: `\`\`\`js\n${typeof result}\`\`\``,
                             inline: false
                         }]
@@ -40,19 +38,19 @@ export default {
                 }
             }
 
-            let _inspect = flags.has("noins") ? (x => x) : inspect;
+            let _inspect = flags.has('noins') ? (x => x) : inspect;
             console.out = function(...args) {
-                return stdout.push(args.map(x => _inspect(x)).join(" ")) && undefined;
+                return stdout.push(args.map(x => _inspect(x)).join(' ')) && undefined;
             }
 
-            let evaled = await eval(`(async () => {${str}})()`);
+            let evaled = await eval(`(async () => ${str})()`);
             stdout.push(_inspect(evaled, {
                 depth: 0
             }));
 
-            if (!flags.has("noout")) {
-                if (flags.has("paste") || stdout.join("\n").length >= 1024) {
-                    return paste.create(stdout.join("\n")).then(function({ link }) {
+            if (!flags.has('noout')) {
+                if (flags.has('paste') || stdout.join('\n').length >= 1024) {
+                    return paste.create(stdout.join('\n')).then(function({ link }) {
                         return {
                             content: link,
                             ephemeral: true
@@ -64,11 +62,11 @@ export default {
                     embeds: [{
                         color: interaction.member?.roles.cache.first()?.color || null,
                         fields: [{
-                            name: "Result",
-                            value: `\`\`\`js\n${stdout.join("\n")}\`\`\``,
+                            name: 'Result',
+                            value: `\`\`\`js\n${stdout.join('\n')}\`\`\``,
                             inline: false
                         }, {
-                            name: "Type",
+                            name: 'Type',
                             value: `\`\`\`js\n${typeof evaled}\`\`\``,
                             inline: false
                         }]
@@ -77,7 +75,7 @@ export default {
                 }
             }
         } catch(error) {
-            if (!flags.has("noerr")) {
+            if (!flags.has('noerr')) {
                 return {
                     embeds: [{
                         color: 13846582,

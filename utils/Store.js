@@ -1,10 +1,11 @@
 import RecursiveProxy from "./RecursiveProxy.js";
 
 export default class {
+    store = null;
     constructor(model) {
         this.store = model;
     }
-    store = null;
+
     async get(id) {
         if (id === void 0) return this.store.find({});
         return this.store.findOne({ id }).then(item => {
@@ -37,7 +38,7 @@ export default class {
 function merge(parent, object) {
     for (const key in object) {
         if (object.hasOwnProperty(key)) {
-            if (typeof parent[key] === "object" && typeof object[key] === "object") {
+            if (typeof parent[key] == 'object' && typeof object[key] == 'object') {
                 parent[key] = merge(parent[key], object[key]);
                 continue;
             }

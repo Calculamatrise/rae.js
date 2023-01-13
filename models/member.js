@@ -21,4 +21,4 @@ const Schema = new mongoose.Schema({
     }
 });
 
-export default mongoose.model("Member", Schema, "members");
+export default mongoose.model('Member', Schema, 'members');

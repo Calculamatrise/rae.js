@@ -5,7 +5,7 @@ export default class extends Set {
     freeze = false;
     recentlyPlayed = new Set();
     add(...items) {
-        for (let item of items) {
+        for (const item of items) {
             if (item instanceof Track) {
                 let strings = Array.from(this.values()).map(({ name }) => name);
                 if (!strings.includes(item.name)) {

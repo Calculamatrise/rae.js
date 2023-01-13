@@ -52,7 +52,7 @@ export default {
         }
     },
     async click(interaction, options) {
-        let user = options.get("user");
+        let user = options.get('user');
         user.member = interaction.guild.members.cache.get(user.value) || await interaction.guild.members.fetch(user.value);
         return this.execute(...arguments);
     },

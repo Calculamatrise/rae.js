@@ -54,8 +54,8 @@ export default {
         }
     },
     async click(interaction, options) {
-        let user = options.get("user");
-        user.type = "USER";
+        let user = options.get('user');
+        user.type = 6;
         user.member = interaction.guild.members.cache.get(user.value) || await interaction.guild.members.fetch(user.value);
         return this.execute(...arguments);
     },

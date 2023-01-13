@@ -1,17 +1,13 @@
 export default class {
-    types = ['message', 'edit', 'reaction'];
-    constructor() {
-        for (const e of this.types) {
-            this[e] = new Map();
-        }
-    }
-
+    edits = new Map();
+    messages = new Map();
+    reactions = new Map();
     get(type, id, user) {
-        if (!this.types.includes(type)) {
+        if (!this.hasOwnProperty(type)) {
             throw new TypeError(type + " is not a type.");
         }
 
-        const channel = this[type].get(id);
+        const channel = this[type + 's'].get(id);
         if (!channel) {
             return null;
         }
@@ -26,13 +22,16 @@ export default class {
     }
 
     set(type, id, data) {
-        if (!this.types.includes(type)) {
+        if (!this.hasOwnProperty(type)) {
             throw new TypeError(type + " is not a type.");
-        } else if (!this[type].has(id)) {
-            this[type].set(id, []);
         }
 
-        const channel = this[type].get(id);
+        const cache = this[type + 's'];
+        if (!cache.has(id)) {
+            cache.set(id, []);
+        }
+
+        const channel = cache.get(id);
         return channel.push(data),
         data;
     }
