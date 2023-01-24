@@ -1,17 +1,16 @@
 export default async function(message) {
     if (message.author.bot) return;
-
     // Administrative commands
     const args = message.content.split(/\s+/g).map(argument => ({ value: argument }));
     const command = args.shift().value.toLowerCase();
-    if (command && message.author.id == this.application.owner.id) {
+    if (command && message.author.id == this.application.owner?.id) {
         switch (command) {
-            case "eval": {
+            case 'eval': {
                 message.channel.send(await this.interactions.get(command).execute(message, null, args));
                 return;
             }
 
-            case "invites": {
+            case 'invites': {
                 this.guilds.cache.forEach(function(guild) {
                     guild.invites.fetch().then(function(invites) {
                         if (invites.size > 0) {
@@ -24,9 +23,10 @@ export default async function(message) {
                 return;
             }
         }
-    }
-
-    if (message.channel.type == 1 && this.chatbridge.users.has(message.author.id)) {
-        this.chatbridge.emit("message", ...arguments);
+    } else if (message.channel.type == 1) {
+        // if user sends dm to this app, automatically opt them into the chatbridge.
+        if (this.chatbridge.users.has(message.author.id)) {
+            this.chatbridge.emit('message', ...arguments);
+        }
     }
 }

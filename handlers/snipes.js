@@ -3,7 +3,7 @@ export default class {
     messages = new Map();
     reactions = new Map();
     get(type, id, user) {
-        if (!this.hasOwnProperty(type)) {
+        if (!this.hasOwnProperty(type + 's')) {
             throw new TypeError(type + " is not a type.");
         }
 
@@ -22,7 +22,7 @@ export default class {
     }
 
     set(type, id, data) {
-        if (!this.hasOwnProperty(type)) {
+        if (!this.hasOwnProperty(type + 's')) {
             throw new TypeError(type + " is not a type.");
         }
 
@@ -32,7 +32,7 @@ export default class {
         }
 
         const channel = cache.get(id);
-        return channel.push(data),
-        data;
+        channel.push(data);
+        return data;
     }
 }
