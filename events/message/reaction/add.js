@@ -12,23 +12,23 @@ export default async function(reaction, user) {
             }
         });
     } else if (/^\**role\s(select\s)?menu/i.test(reaction.message.content) && reaction.message.author.id == this.user.id) {
-        const roles = reaction.message.content.split('\n').map(r => r.split(/(?<=^\S+)\s/)).slice(3);
-        for (const role of roles) {
-            role[1] = reaction.message.guild.roles.cache.find(r => r.name.toLowerCase() == String(role[1]).toLowerCase());
-            if (!role[1]) {
-                roles.splice(roles.indexOf(role), 1);
-                continue;
-            }
-
-            if (/^\**role\sselect/i.test(reaction.message.content) && role[0].toString() != reaction.emoji.toString()) {
-                await member.roles.remove(role[1]);
-                const reactions = reaction.message.reactions.cache.get(role[0].replace(/^<a?:\w+:|>$/g, ''));
-                if (reactions) {
+        const options = reaction.message.content.split('\n').map(r => r.split(/(?<=^\S+)\s/)).slice(3).map((option, index) => {
+            const possibilities = reaction.message.guild.roles.cache.filter(r => r.name.toLowerCase() == String(option[1]).toLowerCase()).sort((a, b) => b.rawPosition - a.rawPosition);
+            option[1] = possibilities.at(Math.min(index, possibilities.size - 1));
+            return option;
+        });
+        const role = options.find(([emoji]) => emoji == reaction.emoji.toString());
+        if (/^\**role\sselect/i.test(reaction.message.content)) {
+            await member.roles.remove(options.map(([_, role]) => role));
+            for (const option of options) {
+                const emoji = String(option[0]).replace(/^<a?:\w+:|>$/g, '');
+                const reactions = reaction.message.reactions.cache.get(emoji) || await reaction.message.reactions.fetch(emoji);
+                if (reactions && emoji != reaction.emoji.toString()) {
                     await reactions.users.remove(user);
                 }
-            } else if (role[0].toString() == reaction.emoji.toString()) {
-                member.roles.add(role[1]);
             }
         }
+
+        await member.roles.add(role[1]);
     }
 }
