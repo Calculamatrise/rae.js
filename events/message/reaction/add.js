@@ -19,11 +19,12 @@ export default async function(reaction, user) {
         });
         const role = options.find(([emoji]) => emoji == reaction.emoji.toString());
         if (/^\**role\sselect/i.test(reaction.message.content)) {
+            options.splice(options.indexOf(role), 1);
             await member.roles.remove(options.map(([_, role]) => role));
             for (const option of options) {
                 const emoji = String(option[0]).replace(/^<a?:\w+:|>$/g, '');
                 const reactions = reaction.message.reactions.cache.get(emoji) || await reaction.message.reactions.fetch(emoji);
-                if (reactions && emoji != reaction.emoji.toString()) {
+                if (reactions) {
                     await reactions.users.remove(user);
                 }
             }
