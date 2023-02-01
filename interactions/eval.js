@@ -2,7 +2,6 @@ import { execSync } from "child_process";
 
 import discord from "discord.js";
 import { inspect } from "util";
-import paste from "paster.js";
 
 import { client } from "../bootstrap.js";
 
@@ -12,10 +11,10 @@ export default {
     async execute(interaction, options, args) {
         const flags = new Set();
         const stdout = [];
-        let str = args.map(({ value }) => value).join(' ').replace(/--[^s]*$/g, function(match) {
-            match.split(/\s+/g).forEach(function(flag) {
+        let str = args.map(({ value }) => value).join(' ').trim().replace(/-{2}.*$/g, match => {
+            for (const flag of match.split(/\s+/g)) {
                 flags.add(flag);
-            });
+            }
             return '';
         }).replace(/^`+(\w*)?(\s*)?|`+(\s*)?$/g, '');
         try {
@@ -50,12 +49,13 @@ export default {
 
             if (!flags.has('noout')) {
                 if (flags.has('paste') || stdout.join('\n').length >= 1024) {
-                    return paste.create(stdout.join('\n')).then(function({ link }) {
-                        return {
-                            content: link,
-                            ephemeral: true
-                        }
-                    });
+                    return {
+                        ephemeral: true,
+                        files: [{
+                            attachment: Buffer.from(stdout.join('\n')),
+                            name: 'eval_output.js'
+                        }]
+                    }
                 }
 
                 return {

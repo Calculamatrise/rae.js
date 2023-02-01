@@ -5,7 +5,7 @@ export default function(oldState, newState) {
         });
     }
 
-    let player = this.players.get(oldState.guild.id);
+    const player = this.players.get(oldState.guild.id);
     if (player) {
         if (!newState.channelId && this.user.id == newState.id) {
             return player.stop();
@@ -13,7 +13,7 @@ export default function(oldState, newState) {
 
         if (oldState.channelId === newState.channelId) return;
         setTimeout(() => {
-            if (player.interaction && player.interaction.guild.members.me.voice.channel && player.interaction.guild.members.me.voice.channel.members.size < 2) {
+            if (newState.guild.members.me.voice.channel.members.size < 2) {
                 return player.stop();
             }
         }, 3e5);

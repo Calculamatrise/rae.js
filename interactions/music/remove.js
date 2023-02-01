@@ -17,9 +17,9 @@ export default {
             }
         }
 
-        let song = Array.from(player.queue.values())[options.getInteger("track")];
+        let song = player.queue.find(t => t == options.getInteger('track'));
         if (song instanceof Track) {
-            player.queue.delete(song);
+            player.queue.splice(player.queue.indexOf(song), 1);
             return {
                 content: `Successfully removed **${song.name}** from the queue.`
             }
@@ -32,8 +32,8 @@ export default {
     focus(interaction, option) {
         if (interaction.client.players.has(interaction.guildId)) {
             let player = interaction.client.players.get(interaction.guildId);
-            if (player.queue.size > 0) {
-                return Array.from(player.queue.values())
+            if (player.queue.length > 0) {
+                return player.queue
                 .slice(0, 25)
                 .map(({ name }, index) => ({ name, value: index }))
                 .filter(prof =>  prof.name.toLowerCase().includes(option.value.toLowerCase()))

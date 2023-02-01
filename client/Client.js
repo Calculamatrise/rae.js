@@ -146,7 +146,7 @@ export default class extends Client {
             }
 
             for (const data of this.interactions.values()) {
-                // if (this.developerMode && data?.name != 'confess') continue;
+                // if (this.developerMode && data?.name != 'verify') continue;
                 const { message, user } = data.menus ?? {};
                 message && await commands.create(message);
                 user && await commands.create(user);

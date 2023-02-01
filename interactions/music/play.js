@@ -25,15 +25,15 @@ export default {
 
         player.init(interaction);
 
-        let file = options.getAttachment("file");
+        let file = options.getAttachment('file');
         if (file !== null) {
             file = new Track(file);
-            player.queue.add(file);
+            player.queue.push(file);
         }
 
-        return player.play(file || options.getString("song")).then(function(song) {
+        return player.play(file || options.getString('song')).then(function(song) {
             return {
-                content: `**${song.playing ? "Waiting to play" : "Track Queued - Position " + player.queue.size}**\n[${song.name?.replace(/([-_|`*])/g, '\\$1')}](<${song.url}>)`,
+                content: `**${song.playing ? "Waiting to play" : "Track Queued - Position " + player.queue.length}**\n[${song.name?.replace(/([-_|`*])/g, '\\$1')}](<${song.url}>)`,
                 components: [{
                     type: 1,
                     components: [{
@@ -71,8 +71,8 @@ export default {
     focus(interaction, option) {
         if (interaction.client.players.has(interaction.guildId)) {
             let player = interaction.client.players.get(interaction.guildId);
-            if (player.queue.recentlyPlayed.size > 0) {
-                return Array.from(player.queue.recentlyPlayed.values())
+            if (player.queue.cache.length > 0) {
+                return player.queue.cache
                 .slice(0, 25)
                 .reverse()
                 .map(({ name, url }) => ({ name, value: url }))

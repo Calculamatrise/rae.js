@@ -2,24 +2,23 @@ import { AudioPlayer, AudioPlayerStatus, joinVoiceChannel, NoSubscriberBehavior 
 import { BaseGuildVoiceChannel } from "discord.js";
 
 import Playlist from "./Playlist.js";
-import Queue from "./Queue.js";
 import Search from "./Search.js";
 import Track from "./Track.js";
 
 export default class Player extends AudioPlayer {
-    connection = null;
-    interaction = null;
-    queue = new Queue();
-    unshift = false;
-    volume = 100;
     get currentTrack() {
-        return this.queue.at(0) || null;
+        return this.queue[0] || null;
     }
 
     get stopped() {
         return this.state.status != 'playing';
     }
 
+    connection = null;
+    interaction = null;
+    queue = [];
+    unshift = false;
+    volume = 100;
     constructor() {
         super({
             behaviors: {
@@ -27,6 +26,9 @@ export default class Player extends AudioPlayer {
             }
         });
 
+        this.queue.cache = [];
+        this.queue.cycle = false;
+        this.queue.freeze = false;
         this.on(AudioPlayerStatus.Playing, () => {
             let song = this.currentTrack;
             if (this.interaction !== null && song) {
@@ -38,7 +40,7 @@ export default class Player extends AudioPlayer {
 
         this.on(AudioPlayerStatus.Idle, async () => {
             this.currentTrack && (this.currentTrack.playing = false);
-            this.unshift && (this.unshift = false, true) || this.queue.shift();
+            this.unshift && (this.unshift = false, true) || this.queue.cache.push(this.queue.unshift());
             if (this.currentTrack !== null) {
                 this.play(this.currentTrack);
             }
@@ -63,14 +65,13 @@ export default class Player extends AudioPlayer {
 
     back() {
         let currentSong = this.currentTrack;
-        if (this.queue.recentlyPlayed.size > 0) {
-            let { value } = this.queue.recentlyPlayed.values().next();
-            this.queue.recentlyPlayed.delete(value);
-            this.queue.unshift(value);
+        if (this.queue.cache.length > 0) {
+            this.queue.unshift(this.queue.cache.shift());
             this.unshift = true;
         }
 
-        return super.stop(), currentSong;
+        super.stop();
+        return currentSong;
     }
 
     loop(state = true) {
@@ -78,9 +79,7 @@ export default class Player extends AudioPlayer {
             this.setQueueLoop(false);
             this.setLoop(false);
             return;
-        }
-
-        if (this.queue.freeze) {
+        } else if (this.queue.freeze) {
             this.setQueueLoop(true);
             return;
         }
@@ -89,11 +88,22 @@ export default class Player extends AudioPlayer {
     }
 
     setLoop(enabled) {
-        return this.queue.freeze = enabled && (this.queue.cycle = false, true);
+        this.queue.cycle = false;
+        return this.queue.freeze = enabled;
     }
 
     setQueueLoop(enabled) {
-        return this.queue.cycle = enabled && (this.queue.freeze = false, true);
+        this.queue.freeze = false;
+        return this.queue.cycle = enabled;
+    }
+
+    shuffle() {
+        for (let item in this.queue) {
+            let index = Math.floor(Math.random() * item);
+            [this.queue[item], this.queue[index]] = [this.queue[index], this.queue[item]];
+        }
+
+        return this.queue;
     }
 
     skip() {
@@ -117,27 +127,19 @@ export default class Player extends AudioPlayer {
             this.interaction = null;
         }
 
-        this.queue.clear();
+        this.queue.splice(0, this.queue.length);
         this.loop(false);
-        super.stop();
-    }
-
-    toggleLoop() {
-        return this.setLoop(!this.queue.freeze);
-    }
-
-    toggleQueueLoop() {
-        return this.setQueueLoop(!this.queue.cycle);
+        this.stopped || super.stop();
     }
 
 	async search(query) {
         const data = await Search.query(query);
         if (data instanceof Playlist) {
             for (const track of data.entries) {
-                this.queue.add(track);
+                this.queue.push(track);
             }
         } else {
-            this.queue.add(data);
+            this.queue.push(data);
         }
 
         return this.queue.at(-1);
@@ -146,7 +148,7 @@ export default class Player extends AudioPlayer {
     async play(song) {
         if (song !== void 0 && !(song instanceof Track)) {
             let search = await this.search(song);
-            search instanceof Array ? this.queue.add(...search) : this.queue.add(search);
+            search instanceof Array ? this.queue.push(...search) : this.queue.push(search);
             song = this.queue.at(-1);
         }
 

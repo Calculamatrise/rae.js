@@ -17,83 +17,81 @@ export default {
             ephemeral: true
         });
 
-        let roles = [];
-        let messageCache = [];
-        for (let i = 0; i < 20; i++) {
-            let message = await interaction.channel.awaitMessages({ filter: m => m.author.id == interaction.user.id, max: 1, time: 240e3 }).then(r => r.first());
-            if (!message) return {
-                content: "You ran out of time! Please try again.",
-                ephemeral: true
-            }
-
-            messageCache.push(message);
+        const menu = new Map();
+        const filter = m => m.author.id == interaction.user.id;
+        const collector = interaction.channel.createMessageCollector({ filter, max: 20, idle: 240e3 });
+        collector.on('collect', async function(message) {
             if (/^(stop|cancel)$/i.test(message.content)) {
-                await message.delete().catch(e => e);
-                return {
-                    content: "Operation terminated.",
-                    ephemeral: true
-                }
-            } else if (/^(done)$/i.test(message.content)) {
-                break;
+                this.collected.clear();
+                return this.stop();
+            } else if (/^done$/i.test(message.content)) {
+                return this.stop();
             }
 
-            let [emoji, role] = message.content.split(/(?<=^\S+)\s/);
-            if (!emoji || !role) {
+            const arr = message.content.split(/(?<=^\S+)\s/);
+            const role = arr[1] && (interaction.guild.roles.cache.find(r => r.id === arr[1].replace(/^<@&|>$/g, '') || r.name.toLowerCase() == arr[1].toLowerCase()));
+            if (!role) {
                 await interaction.followUp({
-                    content: "Something went wrong. Please try again!",
-                    ephemeral: true
-                });
-                i--;
-                continue;
-            }
-
-            role = interaction.guild.roles.cache.find(r => r.id === role || r.name.toLowerCase() == role.toLowerCase());
-            if (role) {
-                role.emoji = interaction.client.emojis.cache.find(e => e.id == emoji || e.name == emoji) ?? interaction.guild.emojis.cache.find(e => e.id == emoji || e.name == emoji) ?? emoji;
-                if (roles.find(r => r.emoji.toString() == role.emoji.toString())) {
-                    await message.reply({
-                        content: "You've already used that emoji! Pleae pick a new one and try again.",
-                        ephemeral: true
-                    }).then(message => setTimeout(() => message.delete().catch(e => e), 3e3));
-                    i--;
-                    continue;
-                }
-                
-                await message.react(role.emoji).then(r => roles.push(role)).catch(async err => {
-                    await message.reply({
-                        content: "Emoji not found. Please use a different emoji!",
-                        ephemeral: true
-                    }).then(message => setTimeout(() => message.delete().catch(e => e), 3e3));
-                    i--;
-                });
-            } else {
-                await message.reply({
                     content: "Role not found! Try \\@mentioning the role.",
                     ephemeral: true
-                }).then(message => setTimeout(() => message.delete().catch(e => e), 3e3));
-                i--;
-            }
-        }
-
-        channel.send(`**Role ${options.getBoolean('multiple') ? '' : 'Select '}Menu${title ? (': ' + title) : ''}**\nReact to give yourself a role!\n\n` + roles.map(r => r.emoji.toString() + ' ' + r.name).join('\n')).then(async m => {
-            for (const { emoji } of roles) {
-                await m.react(emoji);
+                });
+                if (this.collected.delete(this.dispose(message))) {
+                    message.deletable && message.delete();
+                }
+                return;
             }
 
-            for (const message of messageCache) {
-                message.delete().catch(e => e);
+            const emoji = await message.react(arr[0]).then(({ emoji }) => emoji.toString()).catch(() => undefined);
+            if (!emoji) {
+                await interaction.followUp({
+                    content: "Emoji not found! Please use a different emoji.",
+                    ephemeral: true
+                });
+                if (this.collected.delete(this.dispose(message))) {
+                    message.deletable && message.delete();
+                }
+                return;
+            } else if (menu.has(emoji)) {
+                await interaction.followUp({
+                    content: "You've already used that emoji! Pleae pick a new one and try again.",
+                    ephemeral: true
+                });
+                if (this.collected.delete(this.dispose(message))) {
+                    message.deletable && message.delete();
+                }
+                return;
+            }
+
+            menu.set(emoji, role);
+        });
+
+        collector.on('end', async function(collected) {
+            if (menu.size > 0) {
+                const message = await channel.send(`**Role ${options.getBoolean('single-choice') ? 'Select ' : ''}Menu${title ? (': ' + title) : ''}**\nReact to give yourself a role!\n\n` + Array.from(menu.entries()).map(([emoji, role]) => emoji + ' ' + role.name).join('\n'));
+                for (const emoji of menu.keys()) {
+                    await message.react(emoji);
+                }
+            } else {
+                await interaction.followUp({
+                    content: "Operation terminated due to inactivity.",
+                    ephemeral: true
+                });
+            }
+
+            for (const message of collected.values()) {
+                message.deletable && message.delete();
             }
         });
     },
     options: [{
         name: "channel",
         description: "Where would you like to send the role menu?",
-        channel_types: [0, 1, 2, 3, 5, 10, 11, 12],
+        channel_types: [0, 5, 10, 11, 12],
         type: 7,
         required: true
     }, {
-        name: "multiple",
-        description: "Allow multiple roles to be selected. (default: true)",
+        name: "single-choice",
+        description: "Force users to pick ONLY one role. (default: false)",
         type: 5,
         required: false
     }, {

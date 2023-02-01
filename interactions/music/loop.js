@@ -9,9 +9,9 @@ export default {
 
         let player = interaction.client.players.get(interaction.guildId);
         if (player && !player.stopped) {
-            let range = options.getString("range");
-            player.setLoop(range == "track");
-            player.setQueueLoop(range == "queue");
+            let range = options.getString('range');
+            player.setLoop(range == 'track');
+            player.setQueueLoop(range == 'queue');
             let song = player.currentTrack;
             let content = {
                 content: `**Now looping**\n[${song.name}](<${song.url}>)`,

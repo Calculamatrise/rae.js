@@ -42,7 +42,7 @@ export default async function(interaction) {
             if (options) interaction.options = new CommandInteractionOptionResolver(interaction.client, args.map((argument, index) => Object.assign(options[index], argument)));
             let method = interaction.isStringSelectMenu() ? 'select' : 'click';
             if (!event.hasOwnProperty(method)) method = 'execute';
-            if (method != 'execute' && (data = await event[method](interaction, interaction.options, args))) {
+            if (data = await event[method](interaction, interaction.options, args)) {
                 await interaction[interaction.deferred ? 'followUp' : interaction.replied ? 'editReply' : 'reply'](data).catch(function({ message }) {
                     console.error("InteractionCreate:", message);
                 });
