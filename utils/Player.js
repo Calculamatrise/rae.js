@@ -17,8 +17,6 @@ export default class Player extends AudioPlayer {
     connection = null;
     interaction = null;
     queue = [];
-    unshift = false;
-    volume = 100;
     constructor() {
         super({
             behaviors: {
@@ -30,7 +28,8 @@ export default class Player extends AudioPlayer {
         this.queue.cycle = false;
         this.queue.freeze = false;
         this.on(AudioPlayerStatus.Playing, () => {
-            let song = this.currentTrack;
+            let song = this.queue[0];
+            song.playing = true;
             if (this.interaction !== null && song) {
                 this.interaction.editReply({
                     content: `**Now playing**\n[${song.name}](<${song.url}>)`
@@ -40,20 +39,28 @@ export default class Player extends AudioPlayer {
 
         this.on(AudioPlayerStatus.Idle, async () => {
             this.currentTrack && (this.currentTrack.playing = false);
-            this.unshift && (this.unshift = false, true) || this.queue.cache.push(this.queue.unshift());
-            if (this.currentTrack !== null) {
-                this.play(this.currentTrack);
+            if (!this.queue.freeze) {
+                let track = this.queue.shift();
+                if (this.queue.cycle) {
+                    this.queue.push(track);
+                }
+            }
+
+            if (this.queue.length > 0) {
+                this.play();
+            } else if (this.interaction !== null && this.interaction.replied) {
+                this.interaction.editReply({ components: [] }).catch(e => {});
+                this.interaction = null;
             }
         });
 
 		this.on('error', error => {
-            console.error('Player:', error.message);
-            if (this.interaction !== null) {
-                this.interaction.editReply({
-                    content: `One of my libraries decided to be a pain in the ass: ${error.message}`,
-                    components: []
-                }).catch(console.error);
+            if (/403$/.test(error.message)) {
+                super.play(error.resource.metadata.resource);
+                return;
             }
+
+            console.error('Player:', error.message);
 		});
     }
 
@@ -64,10 +71,9 @@ export default class Player extends AudioPlayer {
     }
 
     back() {
-        let currentSong = this.currentTrack;
+        let currentSong = this.queue[0];
         if (this.queue.cache.length > 0) {
             this.queue.unshift(this.queue.cache.shift());
-            this.unshift = true;
         }
 
         super.stop();
@@ -107,7 +113,7 @@ export default class Player extends AudioPlayer {
     }
 
     skip() {
-        let currentSong = this.currentTrack;
+        let currentSong = this.queue[0];
         return super.stop(), currentSong;
     }
 
@@ -123,7 +129,7 @@ export default class Player extends AudioPlayer {
         }
 
         if (this.interaction !== null && this.interaction.replied) {
-            this.interaction.editReply({ components: [] }).catch(console.error);
+            this.interaction.editReply({ components: [] }).catch(e => {});
             this.interaction = null;
         }
 
@@ -145,38 +151,18 @@ export default class Player extends AudioPlayer {
         return this.queue.at(-1);
 	}
 
-    async play(song) {
-        if (song !== void 0 && !(song instanceof Track)) {
-            let search = await this.search(song);
-            search instanceof Array ? this.queue.push(...search) : this.queue.push(search);
-            song = this.queue.at(-1);
+    async play() {
+        if (this.queue.length < 1) {
+            throw new Error("No tracks in queue!");
         }
 
-        if (!this.stopped && (this.currentTrack.playing && !song.playing)) {
+        const song = this.queue[0];
+        if (!this.stopped && song.playing) {
             return song;
         }
 
-        song = this.currentTrack;
-
-        let resource = await song.createAudioResource();
-        resource.volume.setVolumeLogarithmic(this.volume / 100);
-        super.play(resource);
-        // await new Promise((resolve, reject) => {
-        //     let playing = () => {
-        //         this.off('error', errored);
-        //         resolve(song);
-        //     }
-
-        //     let errored = err => {
-        //         this.off(AudioPlayerStatus.Playing, playing);
-        //         reject(err.message);
-        //     }
-
-        //     this.once(AudioPlayerStatus.Playing, playing);
-        //     this.once('error', errored);
-        //     super.play(resource);
-        // });
-
+        song.playing = true;
+        super.play(song.resource);
         return song;
     }
 }
@@ -191,4 +177,3 @@ BaseGuildVoiceChannel.prototype.join = function(deaf = true) {
 }
 
 process.env['YTDL_NO_UPDATE'] = true;
-process.env['SPDL_NO_UPDATE'] = true;

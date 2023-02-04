@@ -1,18 +1,8 @@
 import { createAudioResource, StreamType } from "@discordjs/voice";
 import ytdl from "ytdl-core";
 
-import { Readable } from "stream";
-import { createReadStream } from "fs";
-
-import http from "http";
-import https from "https";
-import Search from "./Search.js";
-
 export default class {
-    #engine = null;
     #stream = null;
-    #streamType = StreamType.Arbitrary;
-    artist = null;
     name = null;
     url = null;
     playing = false;
@@ -20,39 +10,30 @@ export default class {
         seek: 0
     }
 
-    get engine() {
-        if (this.#engine === null) {
-            try {
-                this.#engine = new URL(this.url).hostname.split(".").at(-2);
-            } catch {}
-        }
-
-        return this.#engine;
-    }
-
     get resource() {
-        return createAudioResource(this.#stream, {
+        return createAudioResource(this.stream, {
             inlineVolume: true,
-            inputType: this.#streamType,
+            inputType: StreamType.Arbitrary,
             metadata: this
         });
+    }
+
+    get stream() {
+        // if (this.#stream === null) {
+            this.#stream = ytdl(this.url, {
+                begin: this.options.seek,
+                filter: 'audioonly',
+                highWaterMark: 1 << 25,
+                quality: 'highestaudio'
+            });
+        // }
+
+        return this.#stream;
     }
 
     constructor(options = {}) {
         for (const key in options) {
             switch(key) {
-                case 'artists': {
-                    if (options[key] instanceof Array) {
-                        for (const artist of options[key]) {
-                            if (typeof artist == 'object' && (artist.type == 'artist' || options[key].length == 1)) {
-                                this.artist = artist.name;
-                                break;
-                            }
-                        }
-                    }
-                    break;
-                }
-
                 case 'name':
                 case 'title': {
                     this.name = options[key];
@@ -91,48 +72,5 @@ export default class {
                 }
             }
         }
-    }
-
-    async createAudioResource() {
-        if (this.#stream === null || true) {
-            switch(this.engine) {
-                case 'spotify': {
-                    const video = await Search.video(this.name + ' by ' + this.artist);
-                    this.#stream = ytdl(video.url, {
-                        begin: this.options.seek,
-                        filter: "audioonly",
-                        highWaterMark: 1 << 25,
-                        quality: "highestaudio"
-                    });
-                    this.#streamType = StreamType.Arbitrary;
-                    break;
-                }
-
-                case 'youtube': {
-                    this.#stream = ytdl(this.url, {
-                        begin: this.options.seek,
-                        filter: "audioonly",
-                        highWaterMark: 1 << 25,
-                        quality: "highestaudio"
-                    });
-                    this.#streamType = StreamType.Arbitrary;
-                    break;
-                }
-
-                default: {
-                    // const stream = new Readable();
-                    // https.get(this.url, (stream) => {
-                    //     console.log(Readable.from(stream))
-                    //     // stream.pipe(stream);
-                    // });
-
-                    this.#stream = this.url;
-                    this.#streamType = StreamType.Raw;
-                }
-            }
-        }
-
-        this.playing = true;
-        return this.resource;
     }
 }

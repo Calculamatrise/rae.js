@@ -33,7 +33,7 @@ export default {
                 }]
             }
 
-            return queue.interaction.editReply(content).then(function() {
+            return player.interaction.editReply(content).then(function() {
                 return {
                     content: "Now playing!",
                     ephemeral: true

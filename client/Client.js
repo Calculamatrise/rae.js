@@ -1,5 +1,5 @@
 import { readdir, readFile } from "fs";
-import { extname, parse } from "path";
+import { extname } from "path";
 import { Client } from "discord.js";
 
 import ChatbridgeHandler from "../handlers/chatbridge.js";
@@ -9,13 +9,11 @@ import SnipeHandler from "../handlers/snipes.js";
 import Guild from "../models/guild.js";
 import Member from "../models/member.js";
 import User from "../models/user.js";
-import Temp from "../utils/Temp.js";
 
 export default class extends Client {
     chatbridge = new ChatbridgeHandler(this);
     database = new DatabaseHandler();
-    deafs = new Temp();
-    developerMode = /^(dev|test)$/gi.test(process.argv.at(2));
+    developerMode = /^(dev|test)$/i.test(process.argv.at(2));
     interactions = new InteractionHandler();
     players = new Map();
     snipes = new SnipeHandler();

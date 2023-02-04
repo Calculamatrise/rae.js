@@ -6,7 +6,7 @@ export default {
             ephemeral: true
         });
 
-        const { user } = options.get("user"), message = options.get("message");
+        const { user } = options.get('user'), message = options.get('message');
         return new Promise(function(resolve) {
             for (let i = 0; i < 10; i++) {
                 setTimeout(async function() {

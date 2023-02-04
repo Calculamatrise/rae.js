@@ -3,17 +3,14 @@ export default {
     default_member_permissions: 1 << 13,
     dm_permission: false,
     execute(interaction, options) {
-        return interaction.channel.bulkDelete(options.getInteger("messages")).then(function(response) {
+        return interaction.channel.bulkDelete(options.getInteger('messages')).then(function(response) {
             return {
                 content: "Successfully cleared " + response.size + " messages.",
                 ephemeral: true
             }
         }).catch(async function(error) {
-            await interaction.deferReply({
-                ephemeral: true
-            });
-
-            return interaction.channel.messages.fetch({ limit: options.getInteger("messages") }).then(function(messages) {
+            await interaction.deferReply({ ephemeral: true });
+            return interaction.channel.messages.fetch({ limit: options.getInteger('messages') }).then(function(messages) {
                 messages = Array.from(messages.values());
                 return new Promise(async function(resolve, reject) {
                     await Promise.all(messages.map(message => message.delete().catch(reject)));

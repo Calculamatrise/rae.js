@@ -1,6 +1,5 @@
 import Player from "../../utils/Player.js";
 import Search from "../../utils/Search.js";
-import Track from "../../utils/Track.js";
 
 export default {
     async execute(interaction, options) {
@@ -24,14 +23,7 @@ export default {
         }
 
         player.init(interaction);
-
-        let file = options.getAttachment('file');
-        if (file !== null) {
-            file = new Track(file);
-            player.queue.push(file);
-        }
-
-        return player.play(file || options.getString('song')).then(function(song) {
+        return player.play(await player.search(options.getString('song'))).then(function(song) {
             return {
                 content: `**${song.playing ? "Waiting to play" : "Track Queued - Position " + player.queue.length}**\n[${song.name?.replace(/([-_|`*])/g, '\\$1')}](<${song.url}>)`,
                 components: [{
@@ -76,7 +68,7 @@ export default {
                 .slice(0, 25)
                 .reverse()
                 .map(({ name, url }) => ({ name, value: url }))
-                .filter(prof =>  prof.name.toLowerCase().includes(option.value.toLowerCase()))
+                .filter(({ name }) => String(name).toLowerCase().includes(option.value.toLowerCase()))
                 .sort((a, b) => {
                     if (a.name.toLowerCase().indexOf(option.value.toLowerCase()) > b.name.toLowerCase().indexOf(option.value.toLowerCase())) {
                         return 1;

@@ -8,7 +8,7 @@ export default async function(interaction) {
     }
 
     let args = interaction.options?.data || [];
-    if (interaction.isButton() || interaction.isStringSelectMenu()) {
+    if (interaction.isButton() || interaction.isStringSelectMenu() || interaction.isModalSubmit()) {
         [command, ...args] = interaction.customId.split('-');
         subcommand = command.split(/(?=[A-Z])/).slice(1).at(-1);
         if (subcommand) {
@@ -36,7 +36,7 @@ export default async function(interaction) {
         }
 
         let data;
-        if (interaction.isButton() || interaction.isStringSelectMenu()) {
+        if (interaction.isButton() || interaction.isStringSelectMenu() || interaction.isModalSubmit()) {
             let parent = this.interactions.get(command.replace(/[A-Z].*/g, ''));
             let options = event?.options || parent?.options?.find(option => option.name == subcommand)?.options;
             if (options) interaction.options = new CommandInteractionOptionResolver(interaction.client, args.map((argument, index) => Object.assign(options[index], argument)));

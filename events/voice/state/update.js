@@ -14,7 +14,7 @@ export default function(oldState, newState) {
         if (oldState.channelId === newState.channelId) return;
         setTimeout(() => {
             if (newState.guild.members.me.voice.channel.members.size < 2) {
-                return player.stop();
+                player.stop();
             }
         }, 3e5);
     }

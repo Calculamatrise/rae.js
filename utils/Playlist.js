@@ -34,17 +34,10 @@ export default class {
                     break;
                 }
 
-                case 'items': {
-                    this.entries = options[key].map(function(item) {
-                        return new Track(item);
-                    });
-                    break;
-                }
-
-                case 'tracks': {
-                    this.entries = options[key].items.map(function(item) {
-                        return new Track(item);
-                    });
+                case 'items':
+                case 'tracks':
+                case 'trackList': {
+                    this.entries = options[key].map(item => new Track(item));
                     break;
                 }
             }

@@ -1,6 +1,6 @@
 import spoof from "spotify-url-info";
 
-const { getData, getTracks } = spoof(fetch);
+const { getDetails, getTracks } = spoof(fetch);
 
 import ytdl from "ytdl-core";
 import ytpl from "ytpl";
@@ -41,13 +41,7 @@ export default class {
             return this.video(query);
         }
 
-        const data = await this.playlist(query).catch(() => this.video(query, options));
-        const callback = Array.from(arguments).at(-1);
-        if (typeof callback == 'function') {
-            callback(data);
-        }
-
-        return data;
+        return this.playlist(query).catch(() => this.video(query, options));
     }
 
     static async playlist(query) {
@@ -55,21 +49,25 @@ export default class {
             return new Playlist(await ytpl(query));
         }
 
-        return new Playlist(await getData(query));
+        const data = await getDetails(query);
+        data.title = data.preview.title;
+        data.author = data.preview.description;
+        data.url = data.preview.link;
+        delete data.preview;
+        data.tracks = await Promise.all(data.tracks.map(track => this.video(track.name + ' by ' + track.artist)));
+        return new Playlist(data);
     }
 
     static async video(query, { limit = 1 } = {}) {
         if (this.validateSpotifyURL(query)) {
-            return new Track(await getData(query));
+            const [data] = await getTracks(query).catch(e => []);
+            if (data) {
+                return this.video(data.name + ' by ' + data.artist);
+            }
         } else if (ytdl.validateURL(query)) {
             return new Track(await ytdl.getBasicInfo(query).then(({ videoDetails }) => videoDetails));
         }
 
-        return ytsr(query.replace(/.*(?<=v=)|(?=&).*/g, ''), { limit }).then(function({ items }) {
-            if (limit == 1) return new Track(items[0]);
-            return items.map(function(track) {
-                return new Track(track);
-            });
-        });
+        return ytsr(query.replace(/.*(?<=v=)|(?=&).*/g, ''), { limit }).then(({ items }) => items.map(track => new Track(track))).then(items => limit == 1 ? items[0] : items);
     }
 }

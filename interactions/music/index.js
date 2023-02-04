@@ -12,11 +12,6 @@ export default {
             type: 3,
             required: true,
             autocomplete: true
-        }, {
-            name: "file",
-            description: "A song name or url.",
-            type: 11,
-            required: false
         }]
     }, {
         name: "loop",
