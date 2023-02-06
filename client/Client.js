@@ -73,10 +73,7 @@ export default class extends Client {
     config() {
         return new Promise((resolve, reject) => {
             readFile('.env', (err, data) => {
-                if (err !== null) {
-                    reject(err);
-                }
-
+                if (err !== null) reject(err);
                 const content = data.toString();
                 if (content.length > 0) {
                     for (const match of content.split('\n')) {

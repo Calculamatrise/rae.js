@@ -24,12 +24,12 @@ export default {
             });
             if (member.presence) {
                 embed.fields.push({
-                    name: "Status" + (member.presence.clientStatus?.mobile ? " (mobile)" : ""),
+                    name: 'Status' + (member.presence.clientStatus?.mobile ? " (mobile)" : ''),
                     value: member.presence.status,
                     inline: !member.nickname
                 });
                 for (const activity of member.presence.activities) {
-                    if (activity.type == "CUSTOM") {
+                    if (activity.type == 4) {
                         embed.description = activity.state;
                     }
                 }
@@ -37,7 +37,7 @@ export default {
             
             if (member.nickname) {
                 embed.fields.push({
-                    name: "Nickname",
+                    name: 'Nickname',
                     value: member.nickname,
                     inline: true
                 });
@@ -46,8 +46,8 @@ export default {
             if (member.roles.cache.size > 1) {
                 embed.color = member.roles.cache.first().color || null;
                 embed.fields.push({
-                    name: "Roles",
-                    value: member.roles.cache.filter(r => r.id != interaction.guildId).map(r => "<@&" + r.id + ">").join(' ').substring(0, 1024).replace(/\s<@&\d+$/, ""),
+                    name: 'Roles',
+                    value: member.roles.cache.filter(({ id }) => id != interaction.guildId).map(({ id }) => `<@&${id}>`).join(' ').substring(0, 1024).replace(/\s<@&\d+$/, ''),
                     inline: false
                 });
             }

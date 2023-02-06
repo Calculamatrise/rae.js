@@ -10,9 +10,12 @@ export const client = new Client({
         repliedUser: true
     },
     intents: [
+        GatewayIntentBits.AutoModerationConfiguration,
         GatewayIntentBits.DirectMessages,
         GatewayIntentBits.DirectMessageReactions,
         GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildBans,
+        GatewayIntentBits.GuildIntegrations,
         GatewayIntentBits.GuildMembers,
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.GuildMessageReactions,

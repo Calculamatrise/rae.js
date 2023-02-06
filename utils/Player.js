@@ -3,7 +3,6 @@ import { BaseGuildVoiceChannel } from "discord.js";
 
 import Playlist from "./Playlist.js";
 import Search from "./Search.js";
-import Track from "./Track.js";
 
 export default class Player extends AudioPlayer {
     get currentTrack() {
