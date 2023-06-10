@@ -14,23 +14,23 @@
 // 			});
 // 		});
 // 		if (!channel) return;
-// 		const avatar = await loadImage(member.user.displayAvatarURL({ format: 'jpg', size: 256 }).replace(/\.webp(\?.*)?$/, '.jpg?size=256'));
-// 		const banner = await loadImage('banner.png');
-// 		ctx.clearRect(0, 0, canvas.width, canvas.height);
-// 		avatar && ctx.drawImage(avatar, 40, canvas.height / 2 - 110, 220, 220);
-// 		banner && ctx.drawImage(banner, 0, 0, canvas.width, canvas.height);
-// 		ctx.fillStyle = 'white';
-// 		ctx.font = "bold 30px Arial";
-// 		ctx.fillText(member.user.username, 300, canvas.height / 2 - 16);
-// 		ctx.fillStyle = '#eee';
-// 		ctx.font = "20px Arial";
-// 		ctx.fillText(`Welcome to ${member.guild.name}!`, 300, canvas.height / 2 + 16);
-// 		await channel.send({
-// 			content: `**${member.user.tag}** just joined the server!`,
-// 			files: [{
-// 				attachment: canvas.toBuffer(),
-// 				name: 'welcome.png'
-// 			}]
-// 		});
+// 		// const avatar = await loadImage(member.user.displayAvatarURL({ format: 'jpg', size: 256 }).replace(/\.webp(\?.*)?$/, '.jpg?size=256'));
+// 		// const banner = await loadImage(member.guild.banner || 'banner.png');
+// 		// ctx.clearRect(0, 0, canvas.width, canvas.height);
+// 		// avatar && ctx.drawImage(avatar, 40, canvas.height / 2 - 110, 220, 220);
+// 		// banner && ctx.drawImage(banner, 0, 0, canvas.width, canvas.height);
+// 		// ctx.fillStyle = 'white';
+// 		// ctx.font = "bold 30px Arial";
+// 		// ctx.fillText(member.user.username, 300, canvas.height / 2 - 16);
+// 		// ctx.fillStyle = '#eee';
+// 		// ctx.font = "20px Arial";
+// 		// ctx.fillText(`Welcome to ${member.guild.name}!`, 300, canvas.height / 2 + 16);
+// 		// await channel.send({
+// 		// 	content: `**${member.user.tag}** just joined the server!`,
+// 		// 	files: [{
+// 		// 		attachment: canvas.toBuffer(),
+// 		// 		name: 'welcome.png'
+// 		// 	}]
+// 		// });
 // 	}
 // }
