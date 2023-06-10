@@ -50,10 +50,18 @@ export default {
 
         collector.on('end', async function(collected, reason) {
             if (menu.size > 0) {
-                const message = await channel.send(`**Role ${options.getBoolean('single-choice') ? 'Select ' : ''}Menu${title ? (': ' + title) : ''}**\nReact to give yourself a role!\n\n` + Array.from(menu.entries()).map(([emoji, role]) => emoji + ' ' + role.name).join('\n'));
-                for (const emoji of menu.keys()) {
-                    await message.react(emoji);
-                }
+                const message = await channel.send(`**Role ${options.getBoolean('single-choice') ? 'Select ' : ''}Menu${title ? (': ' + title) : ''}**\nReact to give yourself a role!\n\n` + Array.from(menu.entries()).map(([emoji, role]) => emoji + ' ' + role.name).join('\n')).catch(err => {
+					console.warn('Role Menu end', err.message)
+					interaction.followUp({
+						content: "Something went wrong! Please try again.",
+						ephemeral: true
+					});
+				});
+				if (message) {
+					for (const emoji of menu.keys()) {
+						await message.react(emoji);
+					}
+				}
             } else if (!/^(done|limit)$/i.test(reason)) {
                 await interaction.followUp({
                     content: reason == 'idle' ? "Operation terminated due to inactivity." : reason,

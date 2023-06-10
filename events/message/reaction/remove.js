@@ -7,7 +7,8 @@ export default async function(reaction, user) {
             option[1] = possibilities.at(Math.min(index, possibilities.size - 1));
             return option;
         });
-        member.roles.remove(options.find(([emoji]) => emoji == reaction.emoji.toString())[1]);
+		const role = options.find(([emoji]) => emoji == reaction.emoji.toString())[1];
+        role && member.roles.remove(role);
     }
 
     this.snipes.set('reaction', reaction.message.channel.id, {

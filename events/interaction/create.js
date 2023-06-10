@@ -2,20 +2,20 @@ import { CommandInteractionOptionResolver } from "discord.js";
 
 export default async function(interaction) {
     let command = interaction.commandName;
-    let subcommand = interaction.options?.getSubcommand(false);
+    let subcommand = interaction.hasOwnProperty('options') && interaction.options.getSubcommand(false);
     if (subcommand) {
         command += subcommand.replace(/^./, char => char.toUpperCase());
     }
 
     let args = interaction.options?.data || [];
-    if (interaction.isButton() || interaction.isStringSelectMenu() || interaction.isModalSubmit()) {
-        [command, ...args] = interaction.customId.split('-');
+    if (interaction.hasOwnProperty('customId') || interaction.isButton() || interaction.isStringSelectMenu() || interaction.isModalSubmit()) {
+        [command, ...args] = interaction.customId?.split('-') ?? [];
         subcommand = command.split(/(?=[A-Z])/).slice(1).at(-1);
         if (subcommand) {
             subcommand = subcommand.toLowerCase();
         }
 
-        args = args.map(t => ({ value: t })) || [];
+        args = args.map(value => ({ value })) || [];
         if (interaction.isStringSelectMenu()) {
             interaction.values.forEach(item => args.push({ value: item.value ?? item }));
         }
@@ -24,12 +24,12 @@ export default async function(interaction) {
     if (this.interactions.has(command, (interaction.commandType ?? 1) != 1)) {
         const event = this.interactions.get(command);
         if (!interaction.isRepliable() && !interaction.responded) {
-            return void interaction.respond(await event.focus(interaction, interaction.options.getFocused(true)))
+            return interaction.respond(await event.focus(interaction, interaction.options.getFocused(true)))
             .catch(error => console.error("FocusedInteraction:", error.message));
         }
 
         if ((event.blacklist !== void 0 && event.blacklist.has(interaction.user.id)) || (event.whitelist !== void 0 && !event.whitelist.has(interaction.user.id))) {
-            return void interaction.reply({
+            return interaction.reply({
                 content: event.response || "Insufficient privledges.",
                 ephemeral: true
             });
@@ -49,12 +49,12 @@ export default async function(interaction) {
             } else if (!interaction.deferred && !interaction.replied) {
                 await interaction.deferUpdate();
             }
-        } else if (data = await this.interactions.emit(command, interaction, interaction.options, args)) {
+        } else if (data = await event.execute(interaction, interaction.options, args)) {
             await interaction[interaction.deferred ? 'editReply' : interaction.replied ? 'followUp' : 'reply'](data).catch(function({ message }) {
                 console.error("InteractionCreate:", message);
             });
-        } else if (!interaction.replied) {
-            interaction[(interaction.deferred ? 'editR' : 'r') + 'eply']({
+        } else if (interaction.isRepliable() && !interaction.replied) {
+            await interaction[(interaction.deferred ? 'editR' : 'r') + 'eply']({
                 content: "Something went wrong. Please try again!",
                 ephemeral: true
             });

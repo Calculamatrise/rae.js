@@ -17,18 +17,20 @@ export default async function(reaction, user) {
             return option[1] = possibilities.at(Math.min(index, possibilities.size - 1));
         }));
         const role = options.get(reaction.emoji.toString());
-        if (/^\**role\sselect/i.test(reaction.message.content)) {
-            const exclude = Array.from(options.values());
-            const roles = Array.from(member.roles.cache.filter(role => !exclude.find(r => r.id == role.id)).values());
-            await member.roles.set(roles.concat(role));
-            options.delete(reaction.emoji.toString());
-            for (const option of options.keys()) {
-                const emoji = String(option).replace(/^<a?:\w+:|>$/g, '');
-                const reactions = reaction.message.reactions.cache.get(emoji) || await reaction.message.reactions.fetch(emoji);
-                reactions && await reactions.users.remove(user);
-            }
-        } else {
-            await member.roles.add(role);
-        }
+		if (role) {
+			if (/^\**role\sselect/i.test(reaction.message.content)) {
+				const exclude = Array.from(options.values());
+				const roles = Array.from(member.roles.cache.filter(role => !exclude.find(r => r.id == role.id)).values());
+				await member.roles.set(roles.concat(role));
+				options.delete(reaction.emoji.toString());
+				for (const option of options.keys()) {
+					const emoji = String(option).replace(/^<a?:\w+:|>$/g, '');
+					const reactions = reaction.message.reactions.cache.get(emoji) || await reaction.message.reactions.fetch(emoji);
+					reactions && await reactions.users.remove(user);
+				}
+			} else {
+				await member.roles.add(role);
+			}
+		}
     }
 }

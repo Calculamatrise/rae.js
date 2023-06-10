@@ -12,6 +12,7 @@ import User from "../models/user.js";
 
 export default class extends Client {
     chatbridge = new ChatbridgeHandler(this);
+    commands = new Map();
     database = new DatabaseHandler();
     developerMode = /^(dev|test)$/i.test(process.argv.at(2));
     interactions = new InteractionHandler();
@@ -51,7 +52,7 @@ export default class extends Client {
                     if (extname(event)) {
                         result.push(await import(`.${directory}/${event}`).then(function(data) {
                             return [
-                                directory.split('/').slice(2).concat(/^index\.js$/.test(event) ? '' : event.replace(extname(event), '')).map((event, index) => index > 0 ? event.replace(/^./, m => m.toUpperCase()) : event).join(""),
+                                directory.split('/').slice(2).concat(/^index\.js$/.test(event) ? '' : event.replace(extname(event), '')).map((event, index) => index > 0 ? event.replace(/^./, m => m.toUpperCase()) : event).join(''),
                                 data
                             ]
                         }));
@@ -77,7 +78,7 @@ export default class extends Client {
                 const content = data.toString();
                 if (content.length > 0) {
                     for (const match of content.split('\n')) {
-                        const [ key, value ] = match.split(/[\s=]/, 2);
+                        const [key, value] = match.split(/[\s=]/, 2);
                         if (key && value) {
                             process.env[key] = value;
                         }
@@ -87,47 +88,6 @@ export default class extends Client {
                 resolve();
             });
         });
-    }
-
-    async login() {
-        await this.#import("./events", events => {
-            events.forEach((event, name) => {
-                this.on(name, event.default);
-            });
-        });
-
-        await this.#import("./interactions", events => {
-            events.forEach((event, name) => {
-                if ('description' in event.default) {
-                    event.default.name = event.default.name ?? name.replace(/.*(?=[A-Z])/, '').toLowerCase();
-                }
-
-                if ('menus' in event.default) {
-                    for (const menu in event.default.menus) {
-                        if (typeof event.default.menus[menu] != 'object') continue;
-                        event.default.menus[menu].name = event.default.menus[menu].name ?? name.replace(/.*(?=[A-Z])/, '').toLowerCase();
-                    }
-                }
-
-                this.interactions.on(name, event.default);
-            });
-        });
-
-        if (this.developerMode) {
-            await this.config();
-            arguments[0] = process.env.DEV_TOKEN;
-        }
-
-        this.database.connect(process.env.DATABASE_KEY);
-        return super.login(...arguments);
-    }
-
-    setIdle(status = true) {
-        if (!status) {
-            setTimeout(() => this.user.setStatus('idle'), 6e4);
-        }
-
-        return this.user.setStatus(status ? 'idle' : 'online');
     }
 
     deployCommands() {
@@ -152,5 +112,44 @@ export default class extends Client {
 
             resolve();
         });
+    }
+
+    async login() {
+        await this.#import("./events", events => {
+            events.forEach((event, name) => {
+                this.on(name, event.default);
+            });
+        });
+
+        await this.#import("./interactions", events => {
+            events.forEach(({ default: module }, name) => {
+                if ('description' in module) {
+                    module.name = module.name ?? name.replace(/.*(?=[A-Z])/, '').toLowerCase();
+                }
+
+                if ('menus' in module) {
+                    for (const menu in module.menus) {
+                        if (typeof module.menus[menu] != 'object') continue;
+                        module.menus[menu].name = module.menus[menu].name ?? name.replace(/.*(?=[A-Z])/, '').toLowerCase();
+                    }
+                }
+
+                // this.commands.set(name, module);
+                this.interactions.on(name, module);
+            });
+        });
+
+        if (this.developerMode) {
+            await this.config();
+            arguments[0] = process.env.DEV_TOKEN;
+        }
+
+        await this.database.connect(process.env.DATABASE_KEY);
+        return super.login(...arguments);
+    }
+
+    setIdle(status = true, timeout = 6e4) {
+        status || setTimeout(() => this.user.setStatus('idle'), timeout ?? 6e4);
+        return this.user.setStatus(status ? 'idle' : 'online');
     }
 }

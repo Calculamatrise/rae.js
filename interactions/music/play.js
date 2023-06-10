@@ -33,22 +33,19 @@ export default {
                         label: player.queue.freeze ? "Stop Looping" : "Loop Track",
                         style: 1 + player.queue.freeze,
                         customId: player.queue.freeze ? "musicUnloop" : "musicLoop-track",
-                        emoji: null, // "🔂",
-                        disabled: false
+                        emoji: null, // "🔂"
                     }, {
                         type: 2,
                         label: player.queue.cycle ? "Stop Looping Queue" : "Loop Queue",
                         style: 1 + player.queue.cycle,
                         customId: player.queue.cycle ? "musicUnloop" : "musicLoop-queue",
-                        emoji: null, // "🔁",
-                        disabled: false
+                        emoji: null, // "🔁"
                     }, {
                         type: 2,
                         label: "End Session",
                         style: 4,
                         customId: "musicStop",
-                        emoji: null, // "🔂",
-                        disabled: false
+                        emoji: null, // "🔂"
                     }]
                 }]
             }

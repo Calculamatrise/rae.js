@@ -5,14 +5,6 @@ import Playlist from "./Playlist.js";
 import Search from "./Search.js";
 
 export default class Player extends AudioPlayer {
-    get currentTrack() {
-        return this.queue[0] || null;
-    }
-
-    get stopped() {
-        return this.state.status != 'playing';
-    }
-
     connection = null;
     interaction = null;
     queue = [];
@@ -26,12 +18,11 @@ export default class Player extends AudioPlayer {
         this.queue.cache = [];
         this.queue.cycle = false;
         this.queue.freeze = false;
-        this.on(AudioPlayerStatus.Playing, () => {
-            let song = this.queue[0];
-            song.playing = true;
-            if (this.interaction !== null && song) {
-                this.interaction.editReply({
-                    content: `**Now playing**\n[${song.name}](<${song.url}>)`
+        this.on(AudioPlayerStatus.Playing, ({ resource }) => {
+            if (resource.metadata) {
+				resource.metadata.playing = true;
+                this.interaction !== null && this.interaction.editReply({
+                    content: `**Now playing**\n[${resource.metadata.name}](<${resource.metadata.url}>)`
                 }).catch(console.error);
             }
         });
@@ -61,6 +52,14 @@ export default class Player extends AudioPlayer {
 
             console.error('Player:', error.message);
 		});
+    }
+
+	get currentTrack() {
+        return this.queue[0] || null;
+    }
+
+    get stopped() {
+        return this.state.status != 'playing';
     }
 
     init(interaction) {
