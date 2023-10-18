@@ -1,28 +1,28 @@
 export default {
-    description: "Because you love math so much-",
-    execute(interaction, options) {
+	description: "Because you love math so much-",
+	execute(interaction, options) {
 		functions = {};
-        let response = handle(options.getString('input'));
-        return {
-            content: response.toString(),
-            ephemeral: true
-        }
-    },
-    options: [{
-        name: "input",
-        description: "Enter your formula followed by n to execute the formula.",
-        required: true,
-        type: 3
-    }]
+		let response = handle(options.getString('input'));
+		return {
+			content: response.toString(),
+			ephemeral: true
+		}
+	},
+	options: [{
+		name: "input",
+		description: "Enter your formula followed by n to execute the formula.",
+		required: true,
+		type: 3
+	}]
 }
 
 let functions = {};
 function handle(input) {
 	try {
 		let split = input.replace(/\s+/g, "");
-		let vbls = split.match(/\w+=[^;]*/gi);
-		if (vbls !== null) {
-			for (const variable of vbls) {
+		let vars = split.match(/\w+=[^;]*/gi);
+		if (vars !== null) {
+			for (const variable of vars) {
 				let vbl = variable.split("=");
 				globalThis[vbl[0]] = vbl[1];
 			}
@@ -46,7 +46,7 @@ function handle(input) {
 					}
 
 					// Executing functions (MAKE SURE THEY CAN'T RECURSE IF THEY DON'T HAVE A LIMIT)
-					globalThis[fname] = function() {
+					globalThis[fname] = function () {
 						if (functions[fname].limit == void 0) {
 							return "You must define a limit before calling recursive functions.";
 						} else if (arguments[0] == functions[fname].limit[0]) {
@@ -66,15 +66,15 @@ function handle(input) {
 		split = split.replace(/\w+\(\D+\)=[^;]*;?/gi, "");
 		console.log(split);
 		return eval(split
-		.replace(/(?=sin|cos|tan|floor|round|ceil|log|pi)/gi, "Math.")
-		.replace(/(\d+)\^(\d+)/gi, "Math.pow($1,$2)")
-		.replace(/\|(.+?)\|/g, "Math.abs($1)")
-		.replace(/⌊(.+?)⌋/g, "Math.floor($1)")
-		.replace(/⌈(.+?)⌉/g, "Math.ceil($1)")
-		.replace(/(\d+)!/gi, "factorial($1)")
-		.replace(/phi/gi, (1 + Math.sqrt(5)) / 2)
-		.replace(/mod/gi, "%"));
-	} catch(error) {
+			.replace(/(?=sin|cos|tan|floor|round|ceil|log|pi)/gi, "Math.")
+			.replace(/(\d+)\^(\d+)/gi, "Math.pow($1,$2)")
+			.replace(/\|(.+?)\|/g, "Math.abs($1)")
+			.replace(/⌊(.+?)⌋/g, "Math.floor($1)")
+			.replace(/⌈(.+?)⌉/g, "Math.ceil($1)")
+			.replace(/(\d+)!/gi, "factorial($1)")
+			.replace(/phi/gi, (1 + Math.sqrt(5)) / 2)
+			.replace(/mod/gi, "%"));
+	} catch (error) {
 		console.log(error)
 		return error.message;
 	}
@@ -83,9 +83,7 @@ function handle(input) {
 function factorial(n) {
 	if (isNaN(n)) {
 		throw new Error("An error occurred whilst parsing.");
-	}
-
-	if (+n === 0) {
+	} else if (+n === 0) {
 		return 1;
 	}
 

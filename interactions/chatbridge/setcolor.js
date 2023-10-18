@@ -9,12 +9,12 @@ export default {
                 chatbridge: {
                     color: color.toHex()
                 }
-            }).then(function({ chatbridge }) {
+            }).then(({ chatbridge }) => {
                 return {
                     content: `Successfully set your colour appearance to ${color.toHex()}!`,
                     ephemeral: true
                 }
-            }).catch(function(error) {
+            }).catch(error => {
                 console.error("ChatBridge:", error.message);
             });
         }

@@ -7,7 +7,7 @@ export default {
             }
         }
 
-        return interaction.client.database.users.set(interaction.user.id, { chatbridge: { enabled: true }}).then(function({ chatbridge }) {
+        return interaction.client.database.users.set(interaction.user.id, { chatbridge: { enabled: true }}).then(({ chatbridge }) => {
             interaction.client.chatbridge.send(`${interaction.user.tag} has opted into the chat bridge. Welcome!`);
             interaction.client.chatbridge.users.set(interaction.user.id, {
                 color: parseInt(chatbridge.color.replace('#', ''), 16),
@@ -17,7 +17,7 @@ export default {
                 content: "You've successfully opted in! By sending a message to my DMs, you can communicate with other Discord users!",
                 ephemeral: true
             }
-        }).catch(function(error) {
+        }).catch(error => {
             console.error("ChatBridge:", error.message);
         });
     }
